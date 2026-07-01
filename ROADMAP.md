@@ -8,9 +8,9 @@
 ## Phase 1 — Dependencies & Design Tokens
 **Goal:** All required libraries installed; Tailwind CSS variables match the TZ tokens.
 
-- [ ] 1.1 Install missing deps: `react-router-dom`, `lucide-react`, `zustand`
-- [ ] 1.2 Initialize shadcn/ui (`npx shadcn@latest init`) and add components: Button, DropdownMenu, Avatar, Badge, Tabs, ScrollArea, Separator, Sheet, Input, Tooltip, Card
-- [ ] 1.3 Add CSS design tokens in `src/index.css` (colors, radius, shadow, Inter font import)
+- [x] 1.1 Install missing deps: `react-router-dom`, `lucide-react`, `zustand`
+- [x] 1.2 Initialize shadcn/ui (`npx shadcn@latest init`) and add components: Button, DropdownMenu, Avatar, Badge, Tabs, ScrollArea, Separator, Sheet, Input, Tooltip, Card
+- [x] 1.3 Add CSS design tokens in `src/index.css` (colors, radius, shadow, Inter font import)
 
 ---
 
