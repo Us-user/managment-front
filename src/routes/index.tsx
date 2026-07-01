@@ -15,6 +15,7 @@ import {
   Layers,
   PanelsTopLeft,
   Bell,
+  BookOpen,
 } from 'lucide-react'
 
 export const router = createBrowserRouter([
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: 'drafts', element: <ComingSoon icon={PencilLine} title="Drafts" subtitle="Unsaved work items you started." /> },
       { path: 'your-work', element: <ComingSoon icon={User} title="Your Work" subtitle="Everything assigned to you, in one place." /> },
       { path: 'stickies', element: <ComingSoon icon={StickyNote} title="Stickies" subtitle="Quick notes and reminders." /> },
+      { path: 'wiki', element: <ComingSoon icon={BookOpen} title="Wiki" subtitle="Workspace knowledge base and documentation." /> },
       { path: 'notifications', element: <ComingSoon icon={Bell} title="Notifications" subtitle="Mentions, assignments, and updates." /> },
       { path: 'ai', element: <ComingSoon icon={Sparkles} title="AI" subtitle="Your AI assistant panel. Interface only for now." /> },
       { path: 'analytics', element: <ComingSoon icon={BarChart3} title="Analytics" subtitle="Charts and reports across your projects." /> },
