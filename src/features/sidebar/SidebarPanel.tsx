@@ -6,6 +6,7 @@ import {
   PencilLine,
   User,
   StickyNote,
+  Bell,
   ChevronDown,
   ChevronRight,
   Hash,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: 'Drafts', icon: PencilLine, to: '/drafts' },
   { label: 'Your work', icon: User, to: '/your-work' },
   { label: 'Stickies', icon: StickyNote, to: '/stickies' },
+  { label: 'Notifications', icon: Bell, to: '/notifications' },
 ]
 
 const WORKSPACE_ITEMS = [

@@ -1,36 +1,37 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { LayoutGrid, BookOpen, Sparkles, Settings } from 'lucide-react'
+import { LayoutGrid, Sparkles, Settings } from 'lucide-react'
 
 const RAIL_NAV = [
-  { label: 'Projects', icon: LayoutGrid, to: '/', matchPaths: ['/', '/drafts', '/your-work', '/stickies', '/notifications', '/projects'] },
-  { label: 'Wiki', icon: BookOpen, to: '/wiki', matchPaths: ['/wiki'] },
-  { label: 'AI', icon: Sparkles, to: '/ai', matchPaths: ['/ai'] },
+  {
+    label: 'Projects',
+    icon: LayoutGrid,
+    to: '/',
+    match: (p: string) => p === '/' || (p.startsWith('/') && !p.startsWith('/ai') && !p.startsWith('/settings')),
+  },
+  {
+    label: 'AI',
+    icon: Sparkles,
+    to: '/ai',
+    match: (p: string) => p.startsWith('/ai'),
+  },
 ]
 
 export function SidebarRail({ className }: { className?: string }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  function isActive(matchPaths: string[]) {
-    return matchPaths.some(p =>
-      p === '/' ? pathname === '/' : pathname.startsWith(p),
-    )
-  }
-
   return (
     <div className={cn('flex w-14 shrink-0 flex-col items-center border-r border-border bg-white py-2 gap-0.5', className)}>
       {RAIL_NAV.map(item => {
-        const active = isActive(item.matchPaths)
+        const active = item.match(pathname)
         return (
           <button
             key={item.label}
             onClick={() => navigate(item.to)}
             className={cn(
-              'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors rounded-md mx-1',
-              active
-                ? 'text-[#3f76ff]'
-                : 'text-muted-foreground hover:text-foreground',
+              'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors',
+              active ? 'text-[#3f76ff]' : 'text-muted-foreground hover:text-foreground',
             )}
           >
             <item.icon size={17} />
@@ -44,10 +45,8 @@ export function SidebarRail({ className }: { className?: string }) {
       <button
         onClick={() => navigate('/settings')}
         className={cn(
-          'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors rounded-md mx-1',
-          pathname.startsWith('/settings')
-            ? 'text-[#3f76ff]'
-            : 'text-muted-foreground hover:text-foreground',
+          'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors',
+          pathname.startsWith('/settings') ? 'text-[#3f76ff]' : 'text-muted-foreground hover:text-foreground',
         )}
       >
         <Settings size={17} />

@@ -1,4 +1,5 @@
-import { Search, Mail, HelpCircle, ChevronDown, Menu } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Search, HelpCircle, ChevronDown, Menu, User, LogIn, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,8 @@ interface TopbarProps {
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
+  const navigate = useNavigate()
+
   return (
     <header className="flex h-[46px] shrink-0 items-center border-b border-border bg-white px-3 gap-2">
       {/* Mobile hamburger */}
@@ -60,18 +63,36 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
       {/* Right actions */}
       <div className="flex shrink-0 items-center gap-1.5">
-        <Button variant="outline" size="sm" className="hidden h-8 text-xs md:flex">
-          Get Started
-        </Button>
-        <button className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
-          <Mail size={15} />
-        </button>
         <button className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
           <HelpCircle size={15} />
         </button>
-        <Avatar className="h-7 w-7">
-          <AvatarFallback className="bg-purple-600 text-xs font-semibold text-white">A</AvatarFallback>
-        </Avatar>
+
+        {/* Profile dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="bg-purple-600 text-xs font-semibold text-white">A</AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem onClick={() => navigate('/profile')}>
+              <User size={14} className="mr-2" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/login')}>
+              <LogIn size={14} className="mr-2" />
+              Login
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive">
+              <LogOut size={14} className="mr-2" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )
