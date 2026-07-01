@@ -84,14 +84,14 @@
 ## Phase 8 — Polish & Acceptance Check
 **Goal:** All 8 acceptance criteria from TZ §11 verified and passing.
 
-- [ ] 8.1 Verify sidebar/topbar/shell match design tokens (colors, spacing, radius, typography)
-- [ ] 8.2 Verify all 12 routes switch correctly with active nav + breadcrumb update
-- [ ] 8.3 Verify all dropdowns open/close (shadcn default), items non-functional
-- [ ] 8.4 Verify project expand/collapse works
-- [ ] 8.5 Verify view bar appears only on Work Items page
-- [ ] 8.6 Verify full responsiveness — sidebar becomes Sheet drawer under md
-- [ ] 8.7 Visible keyboard focus (accent ring), reduced-motion respected
-- [ ] 8.8 No Pages/wiki, no functionality anywhere
+- [x] 8.1 Verify sidebar/topbar/shell match design tokens (colors, spacing, radius, typography)
+- [x] 8.2 Verify all 12 routes switch correctly with active nav + breadcrumb update
+- [x] 8.3 Verify all dropdowns open/close (shadcn default), items non-functional
+- [x] 8.4 Verify project expand/collapse works
+- [x] 8.5 Verify view bar appears only on Work Items page
+- [x] 8.6 Verify full responsiveness — sidebar becomes Sheet drawer under md
+- [x] 8.7 Visible keyboard focus (accent ring), reduced-motion respected
+- [x] 8.8 No Pages/wiki, no functionality anywhere
 
 ---
 
