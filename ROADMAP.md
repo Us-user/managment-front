@@ -17,9 +17,9 @@
 ## Phase 2 — App Shell Layout
 **Goal:** Fixed 248px sidebar + 48px topbar + scrollable content area renders correctly. Responsive skeleton in place.
 
-- [ ] 2.1 Create `src/components/layout/AppShell.tsx` — sidebar + topbar + `<Outlet />` content slot
-- [ ] 2.2 Wire responsive logic: below `md` sidebar hidden, full-width content
-- [ ] 2.3 Create root router in `src/routes/index.tsx` with `<AppShell>` as layout wrapper
+- [x] 2.1 Create `src/components/layout/AppShell.tsx` — sidebar + topbar + `<Outlet />` content slot
+- [x] 2.2 Wire responsive logic: below `md` sidebar hidden, full-width content
+- [x] 2.3 Create root router in `src/routes/index.tsx` with `<AppShell>` as layout wrapper
 
 ---
 
