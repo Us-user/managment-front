@@ -1,149 +1,78 @@
-import { useLocation, useParams } from 'react-router-dom'
-import { Menu, ChevronRight, Plus, Filter, LayoutList } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Search, Mail, HelpCircle, ChevronDown, Menu } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-const BREADCRUMB_MAP: Record<string, string> = {
-  '/': 'Home',
-  '/your-work': 'Your Work',
-  '/notifications': 'Notifications',
-  '/drafts': 'Drafts',
-  '/ai': 'AI',
-  '/analytics': 'Analytics',
-  '/trash': 'Trash',
-  '/settings': 'Settings',
-}
-
-function getBreadcrumb(pathname: string, projectId?: string): string {
-  if (projectId) {
-    const segment = pathname.split('/').pop()
-    const labels: Record<string, string> = {
-      'work-items': 'Work Items',
-      cycles: 'Cycles',
-      modules: 'Modules',
-      views: 'Views',
-    }
-    return labels[segment ?? ''] ?? segment ?? ''
-  }
-  return BREADCRUMB_MAP[pathname] ?? ''
-}
 
 interface TopbarProps {
   onMenuClick: () => void
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
-  const location = useLocation()
-  const { id: projectId } = useParams<{ id: string }>()
-  const isWorkItems = /\/projects\/.+\/work-items$/.test(location.pathname)
-  const section = getBreadcrumb(location.pathname, projectId)
-
   return (
-    <header className="shrink-0 border-b border-border">
-      {/* Row 1 — 48px */}
-      <div className="flex h-12 items-center gap-3 px-4">
-        {/* Hamburger — mobile only */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden h-8 w-8"
-          onClick={onMenuClick}
-        >
-          <Menu size={18} />
-        </Button>
+    <header className="flex h-[46px] shrink-0 items-center border-b border-border bg-white px-3 gap-2">
+      {/* Mobile hamburger */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden h-8 w-8 shrink-0"
+        onClick={onMenuClick}
+      >
+        <Menu size={18} />
+      </Button>
 
-        {/* Breadcrumb */}
-        <div className="flex flex-1 items-center gap-1.5 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Duo Workspace</span>
-          {section && (
-            <>
-              <ChevronRight size={14} />
-              <span>{section}</span>
-            </>
-          )}
+      {/* Workspace switcher */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-muted transition-colors">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#3f76ff] text-[11px] font-bold text-white">
+              A
+            </div>
+            <span className="hidden text-sm font-medium md:block">Alfa-bots</span>
+            <ChevronDown size={13} className="hidden text-muted-foreground md:block" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem>Switch workspace</DropdownMenuItem>
+          <DropdownMenuItem>Create workspace</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="text-destructive">Sign out</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Centered search */}
+      <div className="flex flex-1 justify-center">
+        <div className="relative w-full max-w-md">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="h-8 w-full rounded-full border-border bg-muted pl-8 text-sm placeholder:text-muted-foreground focus-visible:ring-1"
+            placeholder="Search"
+            readOnly
+          />
         </div>
-
-        {/* Member avatars */}
-        <div className="flex items-center -space-x-1.5">
-          {['A', 'B', 'C'].map(letter => (
-            <Avatar key={letter} className="h-7 w-7 border-2 border-background">
-              <AvatarFallback className="text-xs bg-[#3f76ff] text-white">{letter}</AvatarFallback>
-            </Avatar>
-          ))}
-        </div>
-
-        {/* New button */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" className="h-8 gap-1.5 bg-[#3f76ff] hover:bg-[#3f76ff]/90 text-white">
-              <Plus size={14} />
-              New
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Issue</DropdownMenuItem>
-            <DropdownMenuItem>Project</DropdownMenuItem>
-            <DropdownMenuItem>Cycle</DropdownMenuItem>
-            <DropdownMenuItem>Module</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
-      {/* Row 2 — 44px, only on /projects/:id/work-items */}
-      {isWorkItems && (
-        <div className="flex h-11 items-center gap-3 border-t border-border px-4">
-          <Tabs defaultValue="list" className="h-full">
-            <TabsList className="h-8 bg-transparent p-0 gap-1">
-              {['List', 'Board', 'Calendar', 'Timeline'].map(view => (
-                <TabsTrigger
-                  key={view}
-                  value={view.toLowerCase()}
-                  className="h-8 rounded-md px-3 text-xs data-[state=active]:bg-[#e9eefc] data-[state=active]:text-[#3f76ff] data-[state=active]:shadow-none"
-                >
-                  {view}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-
-          <div className="ml-auto flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                  <Filter size={13} />
-                  Filters
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Priority</DropdownMenuItem>
-                <DropdownMenuItem>Assignee</DropdownMenuItem>
-                <DropdownMenuItem>Label</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                  <LayoutList size={13} />
-                  Display
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Group by</DropdownMenuItem>
-                <DropdownMenuItem>Order by</DropdownMenuItem>
-                <DropdownMenuItem>Show empty groups</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      )}
+      {/* Right actions */}
+      <div className="flex shrink-0 items-center gap-1.5">
+        <Button variant="outline" size="sm" className="hidden h-8 text-xs md:flex">
+          Get Started
+        </Button>
+        <button className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
+          <Mail size={15} />
+        </button>
+        <button className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
+          <HelpCircle size={15} />
+        </button>
+        <Avatar className="h-7 w-7">
+          <AvatarFallback className="bg-purple-600 text-xs font-semibold text-white">A</AvatarFallback>
+        </Avatar>
+      </div>
     </header>
   )
 }
