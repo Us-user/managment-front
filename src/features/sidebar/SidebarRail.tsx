@@ -22,7 +22,7 @@ export function SidebarRail({ className }: { className?: string }) {
   const { pathname } = useLocation()
 
   return (
-    <div className={cn('flex w-14 shrink-0 flex-col items-center border-r border-border bg-white py-2 gap-0.5', className)}>
+    <div className={cn('flex w-14 shrink-0 flex-col items-center border-r border-border bg-sidebar py-2 gap-0.5', className)}>
       {RAIL_NAV.map(item => {
         const active = item.match(pathname)
         return (
@@ -31,7 +31,7 @@ export function SidebarRail({ className }: { className?: string }) {
             onClick={() => navigate(item.to)}
             className={cn(
               'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors',
-              active ? 'text-[#3f76ff]' : 'text-muted-foreground hover:text-foreground',
+              active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
             )}
           >
             <item.icon size={17} />
@@ -46,7 +46,7 @@ export function SidebarRail({ className }: { className?: string }) {
         onClick={() => navigate('/settings')}
         className={cn(
           'flex w-full flex-col items-center gap-0.5 px-1 py-2 transition-colors',
-          pathname.startsWith('/settings') ? 'text-[#3f76ff]' : 'text-muted-foreground hover:text-foreground',
+          pathname.startsWith('/settings') ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
         )}
       >
         <Settings size={17} />

@@ -16,7 +16,7 @@ export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       <Topbar onMenuClick={() => setMobileOpen(true)} />
 
       <div className="flex flex-1 overflow-hidden">
@@ -32,7 +32,7 @@ export function AppShell() {
           </SheetContent>
         </Sheet>
 
-        <main className="flex-1 overflow-y-auto bg-white">
+        <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
         </main>
       </div>

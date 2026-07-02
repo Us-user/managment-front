@@ -5,8 +5,6 @@ import {
   Home,
   PencilLine,
   User,
-  StickyNote,
-  Bell,
   ChevronDown,
   ChevronRight,
   Hash,
@@ -21,8 +19,6 @@ const NAV_ITEMS = [
   { label: 'Home', icon: Home, to: '/' },
   { label: 'Drafts', icon: PencilLine, to: '/drafts' },
   { label: 'Your work', icon: User, to: '/your-work' },
-  { label: 'Stickies', icon: StickyNote, to: '/stickies' },
-  { label: 'Notifications', icon: Bell, to: '/notifications' },
 ]
 
 const WORKSPACE_ITEMS = [
@@ -46,7 +42,7 @@ export function SidebarPanel({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-white', className)}>
+    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-card', className)}>
       {/* Panel header */}
       <div className="flex h-10 items-center justify-between px-3 border-b border-border">
         <span className="text-sm font-semibold">Projects</span>
@@ -82,7 +78,7 @@ export function SidebarPanel({ className }: { className?: string }) {
               className={cn(
                 'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
                 isActive(item.to)
-                  ? 'bg-[#eff6ff] text-[#3f76ff] font-medium'
+                  ? 'bg-nav-active-bg text-primary font-medium'
                   : 'text-foreground hover:bg-muted',
               )}
             >
