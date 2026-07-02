@@ -7,12 +7,27 @@
 ## Current position
 
 - **Phase:** Post Phase 8 — Ticket work (TASKM series)
-- **Last completed task:** TASKM-14 B0.1 — Design tokens + spacing/type scale + dark mode + hardcoded value sweep
-- **Next task:** Next TASKM ticket (check board). Likely TASKM-15 or whatever follows B0.1 in the backlog.
+- **Last completed task:** TASKM-14 B0.1 follow-up — token documentation (`DESIGN_TOKENS.md`) + hardcoded value audit
+- **Next task:** Next TASKM ticket (check board)
 
 ---
 
 ## Session history
+
+### Session — 2026-07-02 (2nd)
+**Completed:**
+- [x] TASKM-14 B0.1 follow-up — created `DESIGN_TOKENS.md` at project root (all tokens documented from actual `src/index.css`: colors, radius, spacing, type scale)
+- [x] TASKM-14 B0.1 follow-up — audited `ComingSoon`, `Topbar`, `AppShell`, `SidebarPanel`, `SidebarRail` for hardcoded values; confirmed `ComingSoon` fully passes token check
+- [x] Moved `DESIGN_TOKENS.md` from `src/lib/` to project root per user request
+
+**Stopped at:** TASKM-14 B0.1 fully complete — awaiting next ticket
+
+**Notes:**
+- `DESIGN_TOKENS.md` lives at project root alongside `CLAUDE.md`
+- Hardcoded values still present (not fixed — reported for user decision): `bg-purple-600 text-white` on Avatar in Topbar; `bg-amber-50 border-amber-200 text-amber-700` on trial banner in SidebarPanel; `text-white` on project color badge in SidebarPanel (paired with data-driven inline bg style)
+- `ComingSoon` sample page fully passes — all classes use token utilities
+
+---
 
 ### Session — 2026-07-02
 **Completed:**
