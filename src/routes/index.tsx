@@ -4,6 +4,7 @@ import { ComingSoon } from '@/components/ComingSoon'
 import { NotFoundPage } from '@/routes/NotFoundPage'
 import { ErrorPage } from '@/routes/ErrorPage'
 import { FormDemoPage } from '@/features/forms/FormDemoPage'
+import { OverlayDemoPage } from '@/features/overlays/OverlayDemoPage'
 import {
   Home,
   PencilLine,
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
       { path: 'projects-list', element: <ComingSoon icon={Layers} title="Projects" subtitle="All workspace projects." /> },
       { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
       { path: 'forms', element: <FormDemoPage /> },
+      { path: 'overlays', element: <OverlayDemoPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
