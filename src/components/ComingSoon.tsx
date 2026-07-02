@@ -15,8 +15,8 @@ export function ComingSoon({ icon: Icon, title, subtitle }: ComingSoonProps) {
       </div>
       <h1 className="text-xl font-semibold text-foreground">{title}</h1>
       <Badge variant="secondary">Coming soon</Badge>
-      <p className="max-w-xs text-sm text-muted-foreground">{subtitle}</p>
-      <p className="text-xs text-muted-foreground opacity-60">This feature is currently in development.</p>
+      <p className="w-full max-w-xs text-sm text-muted-foreground">{subtitle}</p>
+      <p className="w-full max-w-xs text-xs text-muted-foreground opacity-60">This feature is currently in development.</p>
     </div>
   )
 }

@@ -15,9 +15,9 @@ export function NotFoundPage() {
       </div>
 
       {/* Text */}
-      <div className="space-y-2 text-center">
+      <div className="w-full max-w-md space-y-2 text-center">
         <p className="text-base font-bold text-white">Oops! Something went wrong.</p>
-        <p className="max-w-md text-sm text-[#9ca3af]">
+        <p className="text-sm text-[#9ca3af]">
           Sorry, the page you are looking for cannot be found. It may have been removed, had its
           name changed, or is temporarily unavailable.
         </p>
