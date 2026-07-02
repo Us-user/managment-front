@@ -14,7 +14,7 @@ Defined in `:root` (light) and `.dark` (dark). Exposed to Tailwind via
 
 ### Surface / layout
 
-| CSS variable | Tailwind utilities | Light | Dark | Use for |
+| CSS variable | Tailwind utilities | Light | Dark | Use for |  
 |---|---|---|---|---|
 | `--background` | `bg-background`, `text-background` | white | near-black | page/app shell background |
 | `--foreground` | `text-foreground` | near-black | near-white | primary body text |

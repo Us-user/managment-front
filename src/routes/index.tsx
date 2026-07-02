@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ComingSoon } from '@/components/ComingSoon'
+import { NotFoundPage } from '@/routes/NotFoundPage'
+import { ErrorPage } from '@/routes/ErrorPage'
 import {
   Home,
   PencilLine,
@@ -25,6 +27,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppShell />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <ComingSoon icon={Home} title="Home" subtitle="Your workspace overview will live here." /> },
       { path: 'drafts', element: <ComingSoon icon={PencilLine} title="Drafts" subtitle="Unsaved work items you started." /> },
@@ -41,6 +44,8 @@ export const router = createBrowserRouter([
       { path: 'projects/:id/views', element: <ComingSoon icon={PanelsTopLeft} title="Views" subtitle="Saved filtered views for this project." /> },
       { path: 'projects-list', element: <ComingSoon icon={Layers} title="Projects" subtitle="All workspace projects." /> },
       { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
+  { path: '*', element: <NotFoundPage /> },
 ])
