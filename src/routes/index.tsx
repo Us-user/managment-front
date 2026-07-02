@@ -44,7 +44,6 @@ export const router = createBrowserRouter([
       { path: 'projects/:id/views', element: <ComingSoon icon={PanelsTopLeft} title="Views" subtitle="Saved filtered views for this project." /> },
       { path: 'projects-list', element: <ComingSoon icon={Layers} title="Projects" subtitle="All workspace projects." /> },
       { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
-      { path: '*', element: <NotFoundPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
