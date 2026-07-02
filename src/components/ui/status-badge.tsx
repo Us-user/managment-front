@@ -1,4 +1,4 @@
-import { Archive, SignalHigh, SignalLow, SignalMedium, SignalZero, Zap, type LucideIcon } from 'lucide-react'
+import { Archive, Ban, CircleAlert, SignalHigh, SignalLow, SignalMedium, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type IssueStatus = 'backlog' | 'todo' | 'in-progress' | 'done' | 'cancelled'
@@ -38,7 +38,7 @@ const PRIORITY_CONFIG: Record<IssuePriority, PriorityMeta> = {
   urgent: {
     label: 'Urgent',
     className: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-    icon: Zap,
+    icon: CircleAlert,
     iconColor: 'text-red-500',
   },
   high: {
@@ -62,7 +62,7 @@ const PRIORITY_CONFIG: Record<IssuePriority, PriorityMeta> = {
   none: {
     label: 'None',
     className: 'bg-muted text-muted-foreground',
-    icon: SignalZero,
+    icon: Ban,
     iconColor: 'text-gray-400',
   },
   backlog: {

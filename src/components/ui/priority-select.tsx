@@ -2,14 +2,14 @@ import { useState } from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import {
   Archive,
+  Ban,
   Check,
   ChevronDown,
+  CircleAlert,
   Search,
   SignalHigh,
   SignalLow,
   SignalMedium,
-  SignalZero,
-  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -25,7 +25,7 @@ interface PriorityMeta {
 const CONFIG: Record<IssuePriority, PriorityMeta> = {
   urgent: {
     label: 'Urgent',
-    icon: Zap,
+    icon: CircleAlert,
     iconClass: 'text-red-500',
     boxClass: 'bg-red-500/20',
   },
@@ -49,7 +49,7 @@ const CONFIG: Record<IssuePriority, PriorityMeta> = {
   },
   none: {
     label: 'None',
-    icon: SignalZero,
+    icon: Ban,
     iconClass: 'text-gray-400',
     boxClass: 'bg-gray-400/15',
   },
@@ -61,7 +61,7 @@ const CONFIG: Record<IssuePriority, PriorityMeta> = {
   },
 }
 
-const PRIORITIES: IssuePriority[] = ['urgent', 'high', 'medium', 'low', 'none', 'backlog']
+const PRIORITIES: IssuePriority[] = ['urgent', 'high', 'medium', 'low', 'none']
 
 function IconBox({ priority }: { priority: IssuePriority }) {
   const { icon: Icon, iconClass, boxClass } = CONFIG[priority]
