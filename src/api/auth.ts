@@ -1,6 +1,6 @@
 import client from './client'
 
-const BASE = 'https://task-management-backend-qb4d.onrender.com'
+const BASE = 'https://task-management-backend-qb4d.onrender.com/api/v1'
 
 export interface AuthResponse {
   access_token: string
