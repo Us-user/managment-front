@@ -1,12 +1,6 @@
-const BASE = 'https://task-management-backend-qb4d.onrender.com'
+import client from './client'
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.message ?? err.detail ?? 'Request failed')
-  }
-  return res.json()
-}
+const BASE = 'https://task-management-backend-qb4d.onrender.com'
 
 export interface AuthResponse {
   access_token: string
@@ -25,29 +19,19 @@ export const OAUTH_URLS = {
 // requires a password + display_name server-side, so we derive a name from the
 // email and generate a password the user never needs — they always authenticate
 // with the emailed code. (No passwordless *login* endpoint exists yet.)
-export function emailSignup(email: string): Promise<{ status: string; email: string }> {
-  return fetch(`${BASE}/auth/email/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+export const emailSignup = (email: string) =>
+  client.post<unknown, { status: string; email: string }>(
+    '/auth/email/signup',
+    {
       email,
       password: `${crypto.randomUUID()}Aa1`,
       display_name: email.split('@')[0],
-    }),
-  }).then(handleResponse<{ status: string; email: string }>)
-}
+    },
+  )
 
-export function emailVerify(email: string, code: string): Promise<AuthResponse> {
-  return fetch(`${BASE}/auth/email/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, code }),
-  }).then(handleResponse<AuthResponse>)
-}
+export const emailVerify = (email: string, code: string) =>
+  client.post<unknown, AuthResponse>('/auth/email/verify', { email, code })
 
 // Telegram login returns a t.me deep-link (plus a polling token) to open.
-export function telegramInit(): Promise<Record<string, unknown>> {
-  return fetch(`${BASE}/auth/telegram/init`, { method: 'POST' }).then(
-    handleResponse<Record<string, unknown>>,
-  )
-}
+export const telegramInit = () =>
+  client.post<unknown, Record<string, unknown>>('/auth/telegram/init')

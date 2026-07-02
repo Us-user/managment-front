@@ -1,12 +1,4 @@
-const BASE = 'https://task-management-backend-qb4d.onrender.com'
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.message ?? err.detail ?? 'Request failed')
-  }
-  return res.json()
-}
+import client from './client'
 
 export interface WorkspaceData {
   id: string
@@ -14,33 +6,19 @@ export interface WorkspaceData {
   slug: string
 }
 
-export function getWorkspaces(token: string): Promise<WorkspaceData[]> {
-  return fetch(`${BASE}/workspaces/`, {
-    headers: { Authorization: `Bearer ${token}` },
-  }).then(handleResponse<WorkspaceData[]>)
-}
+// Token is attached by the axios request interceptor — callers don't pass it.
+export const getWorkspaces = () =>
+  client.get<unknown, WorkspaceData[]>('/workspaces/')
 
-export function createWorkspace(
-  name: string,
-  slug: string,
-  token: string,
-): Promise<WorkspaceData> {
-  return fetch(`${BASE}/workspaces/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ name, slug }),
-  }).then(handleResponse<WorkspaceData>)
-}
+export const createWorkspace = (name: string, slug: string) =>
+  client.post<unknown, WorkspaceData>('/workspaces/', { name, slug })
 
-export function inviteMember(
+export const inviteMember = (
   workspaceSlug: string,
   email: string,
   role: string,
-  token: string,
-): Promise<unknown> {
-  return fetch(`${BASE}/workspaces/${workspaceSlug}/members/invite`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ email, role }),
-  }).then(handleResponse<unknown>)
-}
+) =>
+  client.post<unknown, unknown>(`/workspaces/${workspaceSlug}/members/invite`, {
+    email,
+    role,
+  })
