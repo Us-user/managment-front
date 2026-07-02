@@ -5,6 +5,7 @@ import { NotFoundPage } from '@/routes/NotFoundPage'
 import { ErrorPage } from '@/routes/ErrorPage'
 import { FormDemoPage } from '@/features/forms/FormDemoPage'
 import { OverlayDemoPage } from '@/features/overlays/OverlayDemoPage'
+import { DataDisplayDemoPage } from '@/features/data-display/DataDisplayDemoPage'
 import {
   Home,
   PencilLine,
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
       { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
       { path: 'forms', element: <FormDemoPage /> },
       { path: 'overlays', element: <OverlayDemoPage /> },
+      { path: 'data-display', element: <DataDisplayDemoPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
