@@ -95,7 +95,6 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           <Input
             className="h-8 w-full rounded-full border-border bg-muted pl-8 text-sm placeholder:text-muted-foreground focus-visible:ring-1"
             placeholder="Search"
-            readOnly
           />
         </div>
       </div>
