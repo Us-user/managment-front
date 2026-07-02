@@ -26,22 +26,26 @@ async function consumeOAuthRedirect() {
     return
   }
 
-  useAuthStore.setState({ token }) // so the axios interceptor authorizes the next calls
-  try {
-    const user = await getMe()
-    const workspaces = await getWorkspaces()
-    useAuthStore.getState().setAuth(user, token!)
-    if (workspaces.length > 0)
-      useAuthStore.getState().setWorkspace(workspaces[0])
-    history.replaceState(
-      null,
-      '',
-      workspaces.length > 0 ? '/' : '/onboarding/workspace',
+  // Keep the token no matter what — a failed profile/workspace fetch (e.g. an
+  // inactive account the backend rejects) must not wipe the session.
+  useAuthStore.setState({ token })
+
+  const user = await getMe().catch(() => null)
+  const workspaces = await getWorkspaces().catch(() => [])
+
+  if (user) useAuthStore.getState().setAuth(user, token!)
+  if (workspaces.length > 0) useAuthStore.getState().setWorkspace(workspaces[0])
+  if (!user || workspaces.length === 0) {
+    setTimeout(
+      () => toast.error('Signed in, but your account needs activation'),
+      0,
     )
-  } catch {
-    useAuthStore.getState().logout()
-    setTimeout(() => toast.error('Could not complete sign-in'), 0)
   }
+  history.replaceState(
+    null,
+    '',
+    workspaces.length > 0 ? '/' : '/onboarding/workspace',
+  )
 }
 
 consumeOAuthRedirect().finally(() => {
