@@ -62,6 +62,14 @@
   --nav-active-bg: #e9eefc;
   --nav-hover-bg: oklch(0.944 0 0);
   --radius: 0.5rem;
+
+  /* ── Spacing scale (safe prefix — NOT --spacing-*, never enters Tailwind's box-model namespace) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
 }
 
 /* ── Dark mode ──────────────────────────────────────────────────────────── */
@@ -91,15 +99,7 @@
   --nav-hover-bg: oklch(0.25 0 0);
 }
 
-/* ── Spacing scale: p-1 (4px) … p-6 (48px) ─────────────────────────────── */
 @theme {
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 1rem;
-  --spacing-4: 1.5rem;
-  --spacing-5: 2rem;
-  --spacing-6: 3rem;
-
   /* Type scale: text-xs … text-3xl */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
