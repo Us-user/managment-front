@@ -8,7 +8,7 @@ const RECENT_CHATS = [
 
 export function AISidebarPanel({ className }: { className?: string }) {
   return (
-    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-white', className)}>
+    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-card', className)}>
       {/* Header */}
       <div className="flex h-10 items-center justify-between border-b border-border px-3">
         <span className="text-sm font-semibold">Plane AI</span>
@@ -19,7 +19,7 @@ export function AISidebarPanel({ className }: { className?: string }) {
 
       {/* New chat + search */}
       <div className="flex items-center gap-2 px-3 py-2">
-        <button className="flex flex-1 items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:border-[#3f76ff] hover:text-[#3f76ff] transition-colors">
+        <button className="flex flex-1 items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
           <PenSquare size={13} />
           New chat
         </button>

@@ -68,7 +68,7 @@ export function HomePage() {
             <h1 className="mb-1 text-2xl font-bold text-foreground">
               {getGreeting()}, Abdulloh Homidov
             </h1>
-            <p className="text-sm font-medium text-[#3f76ff]">
+            <p className="text-sm font-medium text-primary">
               ☁️ {formatDateTime()}
             </p>
           </div>
@@ -81,9 +81,9 @@ export function HomePage() {
                 <Maximize2 size={14} />
               </button>
             </div>
-            <div className="rounded-lg border border-border bg-[#f8f8f9] p-4">
+            <div className="rounded-lg border border-border bg-sidebar p-4">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#3f76ff] text-[11px] font-bold text-white">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground">
                   A
                 </div>
                 <span className="text-sm font-medium text-foreground">Alfa-Bots</span>
@@ -107,7 +107,7 @@ export function HomePage() {
                   <button className="text-muted-foreground hover:text-foreground transition-colors">
                     <Mic size={15} />
                   </button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3f76ff] text-white hover:bg-[#3f76ff]/90 transition-colors">
+                  <button className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                     <ArrowUp size={14} />
                   </button>
                 </div>
@@ -119,7 +119,7 @@ export function HomePage() {
           <section className="mb-6">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Quicklinks</h2>
-              <button className="flex items-center gap-1 text-xs text-[#3f76ff] hover:underline transition-colors">
+              <button className="flex items-center gap-1 text-xs text-primary hover:underline transition-colors">
                 <Plus size={13} />
                 Add quick Link
               </button>
@@ -128,7 +128,7 @@ export function HomePage() {
               {QUICKLINKS.map((link, i) => (
                 <div
                   key={i}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-white p-3 hover:bg-muted transition-colors"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-muted transition-colors"
                 >
                   <span className="text-base">{link.emoji}</span>
                   <div className="min-w-0">
@@ -152,7 +152,7 @@ export function HomePage() {
               {RECENTS.map(item => (
                 <div
                   key={item.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-white px-4 py-3 hover:bg-muted transition-colors"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted transition-colors"
                 >
                   <div
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"

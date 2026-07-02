@@ -61,7 +61,7 @@ export function SidebarPanel({ className }: { className?: string }) {
 
       {/* New work item */}
       <div className="px-3 py-2">
-        <button className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-1.5 text-sm text-muted-foreground hover:border-[#3f76ff] hover:text-[#3f76ff] transition-colors">
+        <button className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-1.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
           <Hash size={13} />
           New work item
         </button>
