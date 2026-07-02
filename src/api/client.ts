@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore'
 
 const client = axios.create({
-  baseURL: 'https://task-management-backend-qb4d.onrender.com/api/v1',
+  baseURL: '/api/v1',
 })
 
 // Attach the bearer token from the zustand store on every request.

@@ -11,4 +11,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Proxy API calls through the dev server so the browser stays same-origin
+  // (the backend doesn't send CORS headers for localhost).
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://task-management-backend-qb4d.onrender.com',
+        changeOrigin: true,
+      },
+    },
+  },
 })
