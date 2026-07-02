@@ -1,8 +1,8 @@
-import { AlertCircle, ArrowDown, ArrowRight, ArrowUp, Minus, type LucideIcon } from 'lucide-react'
+import { Archive, SignalHigh, SignalLow, SignalMedium, SignalZero, Zap, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type IssueStatus = 'backlog' | 'todo' | 'in-progress' | 'done' | 'cancelled'
-export type IssuePriority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
+export type IssuePriority = 'urgent' | 'high' | 'medium' | 'low' | 'none' | 'backlog'
 
 const STATUS_CONFIG: Record<IssueStatus, { label: string; className: string }> = {
   backlog: {
@@ -38,32 +38,38 @@ const PRIORITY_CONFIG: Record<IssuePriority, PriorityMeta> = {
   urgent: {
     label: 'Urgent',
     className: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-    icon: AlertCircle,
+    icon: Zap,
     iconColor: 'text-red-500',
   },
   high: {
     label: 'High',
     className: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
-    icon: ArrowUp,
+    icon: SignalHigh,
     iconColor: 'text-orange-500',
   },
   medium: {
     label: 'Medium',
     className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
-    icon: ArrowRight,
+    icon: SignalMedium,
     iconColor: 'text-yellow-500',
   },
   low: {
     label: 'Low',
     className: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
-    icon: ArrowDown,
+    icon: SignalLow,
     iconColor: 'text-blue-500',
   },
   none: {
     label: 'None',
     className: 'bg-muted text-muted-foreground',
-    icon: Minus,
+    icon: SignalZero,
     iconColor: 'text-gray-400',
+  },
+  backlog: {
+    label: 'Backlog',
+    className: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+    icon: Archive,
+    iconColor: 'text-slate-400',
   },
 }
 

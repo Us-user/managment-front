@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import {
-  AlertCircle,
-  ArrowDown,
-  ArrowRight,
-  ArrowUp,
-  Ban,
+  Archive,
   Check,
   ChevronDown,
   Search,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+  SignalZero,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -24,37 +25,43 @@ interface PriorityMeta {
 const CONFIG: Record<IssuePriority, PriorityMeta> = {
   urgent: {
     label: 'Urgent',
-    icon: AlertCircle,
+    icon: Zap,
     iconClass: 'text-red-500',
     boxClass: 'bg-red-500/20',
   },
   high: {
     label: 'High',
-    icon: ArrowUp,
+    icon: SignalHigh,
     iconClass: 'text-orange-500',
     boxClass: 'bg-orange-500/20',
   },
   medium: {
     label: 'Medium',
-    icon: ArrowRight,
+    icon: SignalMedium,
     iconClass: 'text-yellow-500',
     boxClass: 'bg-yellow-500/20',
   },
   low: {
     label: 'Low',
-    icon: ArrowDown,
+    icon: SignalLow,
     iconClass: 'text-blue-500',
     boxClass: 'bg-blue-500/20',
   },
   none: {
     label: 'None',
-    icon: Ban,
+    icon: SignalZero,
     iconClass: 'text-gray-400',
     boxClass: 'bg-gray-400/15',
   },
+  backlog: {
+    label: 'Backlog',
+    icon: Archive,
+    iconClass: 'text-slate-400',
+    boxClass: 'bg-slate-500/20',
+  },
 }
 
-const PRIORITIES: IssuePriority[] = ['urgent', 'high', 'medium', 'low', 'none']
+const PRIORITIES: IssuePriority[] = ['urgent', 'high', 'medium', 'low', 'none', 'backlog']
 
 function IconBox({ priority }: { priority: IssuePriority }) {
   const { icon: Icon, iconClass, boxClass } = CONFIG[priority]
