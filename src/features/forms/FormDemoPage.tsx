@@ -8,16 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DatePicker } from '@/components/ui/date-picker'
 import { MultiSelect } from '@/components/ui/multi-select'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { ErrorBanner } from '@/components/ui/error-banner'
-import { PriorityIcon, PRIORITY_CONFIG, type IssuePriority } from '@/components/ui/status-badge'
+import { PrioritySelect } from '@/components/ui/priority-select'
 
 const schema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters'),
@@ -28,8 +21,6 @@ const schema = z.object({
 })
 
 type FormValues = z.infer<typeof schema>
-
-const PRIORITY_OPTIONS: IssuePriority[] = ['urgent', 'high', 'medium', 'low', 'none']
 
 const ASSIGNEE_OPTIONS = [
   { value: 'abdulloh', label: 'Abdulloh' },
@@ -107,7 +98,7 @@ export function FormDemoPage() {
             )}
           />
 
-          {/* Select */}
+          {/* Priority */}
           <FormField
             control={form.control}
             name="priority"
@@ -115,28 +106,11 @@ export function FormDemoPage() {
               <FormItem>
                 <FormLabel>Priority</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      {field.value ? (
-                        <span className="flex items-center gap-2">
-                          <PriorityIcon priority={field.value as IssuePriority} />
-                          {PRIORITY_CONFIG[field.value as IssuePriority].label}
-                        </span>
-                      ) : (
-                        <SelectValue placeholder="Select priority" />
-                      )}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PRIORITY_OPTIONS.map(p => (
-                        <SelectItem key={p} value={p}>
-                          <span className="flex items-center gap-2">
-                            <PriorityIcon priority={p} />
-                            {PRIORITY_CONFIG[p].label}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <PrioritySelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Select priority"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
