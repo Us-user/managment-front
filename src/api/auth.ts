@@ -32,6 +32,9 @@ export const emailSignup = (email: string) =>
 export const emailVerify = (email: string, code: string) =>
   client.post<unknown, AuthResponse>('/auth/email/verify', { email, code })
 
+// Current user for the stored token (used after an OAuth redirect).
+export const getMe = () => client.get<unknown, AuthResponse['user']>('/auth/me')
+
 // Telegram login returns a t.me deep-link (plus a polling token) to open.
 export const telegramInit = () =>
   client.post<unknown, Record<string, unknown>>('/auth/telegram/init')
