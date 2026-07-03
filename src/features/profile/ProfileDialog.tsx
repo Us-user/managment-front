@@ -50,78 +50,83 @@ export function ProfileDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl gap-0 overflow-hidden p-0">
-        {/* Cover */}
-        <div className="relative h-32 bg-muted">
-          <span className="absolute right-3 bottom-3 rounded border border-border bg-background/80 px-2 py-1 text-xs">
-            Change cover
-          </span>
-          <button
-            onClick={() => setImgOpen(true)}
-            className="absolute -bottom-6 left-6 flex h-16 w-16 items-center justify-center rounded-md bg-purple-500 text-3xl font-bold text-white"
-          >
-            {initial}
-          </button>
-        </div>
-
-        <div className="px-6 pb-6 pt-9">
-          <p className="text-lg font-semibold">{user?.display_name}</p>
-          <p className="mb-6 text-sm text-muted-foreground">{user?.email}</p>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Field label="First name" required>
-              <Input value={first} onChange={(e) => setFirst(e.target.value)} />
-            </Field>
-            <Field label="Last name">
-              <Input value={last} onChange={(e) => setLast(e.target.value)} />
-            </Field>
-            <Field label="Display name" required>
-              <Input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-            </Field>
-          </div>
-
-          <div className="mt-4 max-w-sm">
-            <Field label="Email" required>
-              {/* Disabled — no change-email endpoint. */}
-              <Input disabled value={user?.email ?? ''} />
-            </Field>
-            <button className="mt-1 text-xs text-foreground underline underline-offset-2 hover:text-primary">
-              Change email
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl gap-0 overflow-hidden p-0">
+          {/* Cover */}
+          <div className="relative h-32 bg-muted">
+            <span className="absolute right-3 bottom-3 rounded border border-border bg-background/80 px-2 py-1 text-xs">
+              Change cover
+            </span>
+            <button
+              onClick={() => setImgOpen(true)}
+              className="absolute -bottom-6 left-6 flex h-16 w-16 items-center justify-center rounded-md bg-purple-500 text-3xl font-bold text-white"
+            >
+              {initial}
             </button>
           </div>
 
-          <Button
-            className="mt-5"
-            onClick={save}
-            disabled={busy || !displayName.trim()}
-          >
-            {busy ? 'Saving…' : 'Save changes'}
-          </Button>
+          <div className="px-6 pb-6 pt-9">
+            <p className="text-lg font-semibold">{user?.display_name}</p>
+            <p className="mb-6 text-sm text-muted-foreground">{user?.email}</p>
 
-          {/* Deactivate */}
-          <div className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-border p-4">
-            <div>
-              <p className="text-sm font-semibold">Deactivate account</p>
-              <p className="text-xs text-muted-foreground">
-                When deactivating an account, all of the data and resources
-                within that account will be permanently removed and cannot be
-                recovered.
-              </p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Field label="First name" required>
+                <Input
+                  value={first}
+                  onChange={(e) => setFirst(e.target.value)}
+                />
+              </Field>
+              <Field label="Last name">
+                <Input value={last} onChange={(e) => setLast(e.target.value)} />
+              </Field>
+              <Field label="Display name" required>
+                <Input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              </Field>
             </div>
+
+            <div className="mt-4 max-w-sm">
+              <Field label="Email" required>
+                {/* Disabled — no change-email endpoint. */}
+                <Input disabled value={user?.email ?? ''} />
+              </Field>
+              <button className="mt-1 text-xs text-foreground underline underline-offset-2 hover:text-primary">
+                Change email
+              </button>
+            </div>
+
             <Button
-              variant="outline"
-              className="shrink-0 border-destructive text-destructive hover:bg-destructive/10"
-              onClick={() => setDeactivateOpen(true)}
+              className="mt-5"
+              onClick={save}
+              disabled={busy || !displayName.trim()}
             >
-              Deactivate account
+              {busy ? 'Saving…' : 'Save changes'}
             </Button>
+
+            {/* Deactivate */}
+            <div className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+              <div>
+                <p className="text-sm font-semibold">Deactivate account</p>
+                <p className="text-xs text-muted-foreground">
+                  When deactivating an account, all of the data and resources
+                  within that account will be permanently removed and cannot be
+                  recovered.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="shrink-0 border-destructive text-destructive hover:bg-destructive/10"
+                onClick={() => setDeactivateOpen(true)}
+              >
+                Deactivate account
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
 
       <ImageUploadDialog
         open={imgOpen}
@@ -161,7 +166,7 @@ export function ProfileDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Dialog>
+    </>
   )
 }
 
