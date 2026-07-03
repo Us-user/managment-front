@@ -13,9 +13,6 @@ import {
   PanelLeftClose,
   FolderOpen,
   MoreHorizontal,
-  WrapText,
-  Layers2,
-  Table2,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -29,14 +26,13 @@ const WORKSPACE_ITEMS = [
   { label: 'More', icon: MoreHorizontal, to: '/more' },
 ]
 
-const DEV_ITEMS = [
-  { label: 'Forms (B4.1 / B4.3)', icon: WrapText, to: '/forms' },
-  { label: 'Overlays (B4.2)', icon: Layers2, to: '/overlays' },
-  { label: 'Data display (B4.4)', icon: Table2, to: '/data-display' },
-]
-
 const SAMPLE_PROJECTS = [
-  { id: 'taskm', identifier: 'TASKM', name: 'Task Management', color: '#6366f1' },
+  {
+    id: 'taskm',
+    identifier: 'TASKM',
+    name: 'Task Management',
+    color: '#6366f1',
+  },
 ]
 
 export function SidebarPanel({ className }: { className?: string }) {
@@ -44,7 +40,6 @@ export function SidebarPanel({ className }: { className?: string }) {
   const location = useLocation()
   const [workspaceOpen, setWorkspaceOpen] = useState(true)
   const [projectsOpen, setProjectsOpen] = useState(true)
-  const [devOpen, setDevOpen] = useState(true)
 
   function isActive(to: string) {
     if (to === '/') return location.pathname === '/'
@@ -52,7 +47,12 @@ export function SidebarPanel({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-card', className)}>
+    <div
+      className={cn(
+        'flex w-[240px] shrink-0 flex-col border-r border-border bg-card',
+        className,
+      )}
+    >
       {/* Panel header */}
       <div className="flex h-10 items-center justify-between px-3 border-b border-border">
         <span className="text-sm font-semibold">Projects</span>
@@ -81,7 +81,7 @@ export function SidebarPanel({ className }: { className?: string }) {
       <div className="flex-1 overflow-y-auto px-2 pb-2">
         {/* Primary nav */}
         <nav className="space-y-0.5 mb-3">
-          {NAV_ITEMS.map(item => (
+          {NAV_ITEMS.map((item) => (
             <button
               key={item.to}
               onClick={() => navigate(item.to)}
@@ -101,51 +101,28 @@ export function SidebarPanel({ className }: { className?: string }) {
         {/* Workspace section */}
         <div className="mb-3">
           <button
-            onClick={() => setWorkspaceOpen(o => !o)}
+            onClick={() => setWorkspaceOpen((o) => !o)}
             className="flex w-full items-center justify-between px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Workspace</span>
-            {workspaceOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            {workspaceOpen ? (
+              <ChevronDown size={12} />
+            ) : (
+              <ChevronRight size={12} />
+            )}
           </button>
           {workspaceOpen && (
             <div className="mt-0.5 space-y-0.5">
-              {WORKSPACE_ITEMS.map(item => (
+              {WORKSPACE_ITEMS.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => navigate(item.to)}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted transition-colors"
                 >
-                  <item.icon size={14} className="shrink-0 text-muted-foreground" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Dev / Components section */}
-        <div className="mb-3">
-          <button
-            onClick={() => setDevOpen(o => !o)}
-            className="flex w-full items-center justify-between px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <span>Dev / Components</span>
-            {devOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          </button>
-          {devOpen && (
-            <div className="mt-0.5 space-y-0.5">
-              {DEV_ITEMS.map(item => (
-                <button
-                  key={item.to}
-                  onClick={() => navigate(item.to)}
-                  className={cn(
-                    'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                    isActive(item.to)
-                      ? 'bg-nav-active-bg text-primary font-medium'
-                      : 'text-foreground hover:bg-muted',
-                  )}
-                >
-                  <item.icon size={14} className="shrink-0 text-muted-foreground" />
+                  <item.icon
+                    size={14}
+                    className="shrink-0 text-muted-foreground"
+                  />
                   {item.label}
                 </button>
               ))}
@@ -156,15 +133,19 @@ export function SidebarPanel({ className }: { className?: string }) {
         {/* Projects section */}
         <div>
           <button
-            onClick={() => setProjectsOpen(o => !o)}
+            onClick={() => setProjectsOpen((o) => !o)}
             className="flex w-full items-center justify-between px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Projects</span>
-            {projectsOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            {projectsOpen ? (
+              <ChevronDown size={12} />
+            ) : (
+              <ChevronRight size={12} />
+            )}
           </button>
           {projectsOpen && (
             <div className="mt-0.5 space-y-0.5">
-              {SAMPLE_PROJECTS.map(project => (
+              {SAMPLE_PROJECTS.map((project) => (
                 <button
                   key={project.id}
                   onClick={() => navigate(`/projects/${project.id}/work-items`)}
@@ -176,7 +157,9 @@ export function SidebarPanel({ className }: { className?: string }) {
                   >
                     {project.identifier[0]}
                   </div>
-                  <span className="flex-1 truncate text-left">{project.name}</span>
+                  <span className="flex-1 truncate text-left">
+                    {project.name}
+                  </span>
                 </button>
               ))}
             </div>
@@ -187,7 +170,9 @@ export function SidebarPanel({ className }: { className?: string }) {
       {/* Trial banner */}
       <div className="px-3 pb-3">
         <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-center">
-          <span className="text-xs font-medium text-amber-700">Business trial ends in 12d</span>
+          <span className="text-xs font-medium text-amber-700">
+            Business trial ends in 12d
+          </span>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { router } from './routes'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { Toaster } from '@/components/ui/toaster'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { getMe } from '@/api/auth'
 import { getWorkspaces } from '@/api/workspace'
 
@@ -34,8 +35,9 @@ async function consumeOAuthRedirect() {
   const workspaces = await getWorkspaces().catch(() => [])
 
   if (user) useAuthStore.getState().setAuth(user, token!)
-  useAuthStore.getState().setWorkspaces(workspaces)
-  if (workspaces.length > 0) useAuthStore.getState().setWorkspace(workspaces[0])
+  useWorkspaceStore.getState().setWorkspaces(workspaces)
+  if (workspaces.length > 0)
+    useWorkspaceStore.getState().setWorkspace(workspaces[0])
   if (!user || workspaces.length === 0) {
     setTimeout(
       () => toast.error('Signed in, but your account needs activation'),

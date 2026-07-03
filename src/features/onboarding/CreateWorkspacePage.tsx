@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/form'
 import { createWorkspace } from '@/api/workspace'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { toast } from 'sonner'
 
 const toSlug = (name: string) =>
@@ -34,9 +35,9 @@ const schema = z.object({
 
 export function CreateWorkspacePage() {
   const navigate = useNavigate()
-  const setWorkspace = useAuthStore((s) => s.setWorkspace)
-  const addWorkspace = useAuthStore((s) => s.addWorkspace)
-  const workspace = useAuthStore((s) => s.workspace)
+  const setWorkspace = useWorkspaceStore((s) => s.setWorkspace)
+  const addWorkspace = useWorkspaceStore((s) => s.addWorkspace)
+  const workspace = useWorkspaceStore((s) => s.workspace)
   const email = useAuthStore((s) => s.user?.email)
 
   const form = useForm<z.infer<typeof schema>>({

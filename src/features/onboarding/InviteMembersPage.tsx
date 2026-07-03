@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 import { inviteMember } from '@/api/workspace'
-import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { toast } from 'sonner'
 
 interface FormValues {
@@ -23,7 +23,7 @@ const EMPTY = { email: '', role: '' }
 
 export function InviteMembersPage() {
   const navigate = useNavigate()
-  const workspace = useAuthStore((s) => s.workspace)
+  const workspace = useWorkspaceStore((s) => s.workspace)
 
   const form = useForm<FormValues>({
     defaultValues: { members: [EMPTY, EMPTY, EMPTY] },

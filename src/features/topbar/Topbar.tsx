@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 import {
   getWorkspaces,
   getWorkspaceMembers,
@@ -52,10 +53,11 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
   const user = useAuthStore((s) => s.user)
-  const workspace = useAuthStore((s) => s.workspace)
-  const workspaces = useAuthStore((s) => s.workspaces)
-  const setWorkspace = useAuthStore((s) => s.setWorkspace)
-  const setWorkspaces = useAuthStore((s) => s.setWorkspaces)
+  const workspace = useWorkspaceStore((s) => s.workspace)
+  const workspaces = useWorkspaceStore((s) => s.workspaces)
+  const setWorkspace = useWorkspaceStore((s) => s.setWorkspace)
+  const setWorkspaces = useWorkspaceStore((s) => s.setWorkspaces)
+  const resetWorkspaces = useWorkspaceStore((s) => s.reset)
   const logout = useAuthStore((s) => s.logout)
 
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -105,6 +107,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
   function handleSignOut() {
     logout()
+    resetWorkspaces()
     navigate('/login')
   }
 
@@ -169,14 +172,14 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           {/* Settings + Invite members */}
           <div className="grid grid-cols-2 gap-2 px-2 pb-2">
             <button
-              onClick={() => go('/settings')}
+              onClick={() => go('/settings/members')}
               className="flex items-center justify-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               <Settings size={13} />
               Settings
             </button>
             <button
-              onClick={() => go('/onboarding/members')}
+              onClick={() => go('/settings/members')}
               className="flex items-center justify-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               <UserPlus size={13} />
@@ -196,7 +199,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                     onClick={() => switchWorkspace(ws)}
                     className="flex w-full items-center gap-2.5 rounded-sm px-2 py-1.5 text-left hover:bg-muted transition-colors"
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted-foreground/80 text-xs font-bold text-white">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
                       {ws.name[0]?.toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">

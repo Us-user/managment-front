@@ -18,6 +18,7 @@ import {
 import { emailSignup, emailVerify, telegramInit, OAUTH_URLS } from '@/api/auth'
 import { getWorkspaces } from '@/api/workspace'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { toast } from 'sonner'
 
 const emailSchema = z.object({ email: z.string().email('Enter a valid email') })
@@ -96,8 +97,8 @@ function ProviderButton({
 function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const navigate = useNavigate()
   const setAuth = useAuthStore((s) => s.setAuth)
-  const setWorkspace = useAuthStore((s) => s.setWorkspace)
-  const setWorkspaces = useAuthStore((s) => s.setWorkspaces)
+  const setWorkspace = useWorkspaceStore((s) => s.setWorkspace)
+  const setWorkspaces = useWorkspaceStore((s) => s.setWorkspaces)
 
   const [sentTo, setSentTo] = useState<string | null>(null)
 

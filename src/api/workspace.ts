@@ -17,6 +17,7 @@ export interface WorkspaceMember {
   workspace_id: string
   user_id: string
   role: 'owner' | 'admin' | 'member' | 'guest'
+  created_at?: string
   user: {
     id: string
     email: string

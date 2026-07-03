@@ -1,15 +1,14 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ComingSoon } from '@/components/ComingSoon'
 import { NotFoundPage } from '@/routes/NotFoundPage'
 import { ErrorPage } from '@/routes/ErrorPage'
-import { FormDemoPage } from '@/features/forms/FormDemoPage'
-import { OverlayDemoPage } from '@/features/overlays/OverlayDemoPage'
-import { DataDisplayDemoPage } from '@/features/data-display/DataDisplayDemoPage'
 import { AuthPage } from '@/features/auth/AuthPage'
 import { ProtectedRoute, WorkspaceRoute } from '@/features/auth/ProtectedRoute'
 import { CreateWorkspacePage } from '@/features/onboarding/CreateWorkspacePage'
 import { InviteMembersPage } from '@/features/onboarding/InviteMembersPage'
+import { SettingsLayout } from '@/features/settings/SettingsLayout'
+import { MembersPage } from '@/features/settings/MembersPage'
 import {
   Home,
   PencilLine,
@@ -26,6 +25,32 @@ import {
   Mail,
 } from 'lucide-react'
 
+// The settings pages that aren't built yet — each renders inside SettingsLayout.
+const SETTINGS_SOON = [
+  'general',
+  'billing',
+  'imports',
+  'exports',
+  'worklogs',
+  'identity',
+  'projects',
+  'integrations',
+  'connections',
+  'teamspaces',
+  'wiki',
+  'initiatives',
+  'customers',
+].map((path) => ({
+  path,
+  element: (
+    <ComingSoon
+      icon={Settings}
+      title={path[0].toUpperCase() + path.slice(1)}
+      subtitle="This settings section is coming soon."
+    />
+  ),
+}))
+
 export const router = createBrowserRouter([
   { path: '/login', element: <AuthPage /> },
   {
@@ -38,6 +63,16 @@ export const router = createBrowserRouter([
   {
     element: <WorkspaceRoute />,
     children: [
+      {
+        path: '/settings',
+        element: <SettingsLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <Navigate to="members" replace /> },
+          { path: 'members', element: <MembersPage /> },
+          ...SETTINGS_SOON,
+        ],
+      },
       {
         path: '/',
         element: <AppShell />,
@@ -110,16 +145,6 @@ export const router = createBrowserRouter([
                 icon={Trash2}
                 title="Trash"
                 subtitle="Deleted items you can restore."
-              />
-            ),
-          },
-          {
-            path: 'settings',
-            element: (
-              <ComingSoon
-                icon={Settings}
-                title="Settings"
-                subtitle="Profile, workspace, and project settings."
               />
             ),
           },
@@ -203,9 +228,6 @@ export const router = createBrowserRouter([
               />
             ),
           },
-          { path: 'forms', element: <FormDemoPage /> },
-          { path: 'overlays', element: <OverlayDemoPage /> },
-          { path: 'data-display', element: <DataDisplayDemoPage /> },
         ],
       },
     ],
