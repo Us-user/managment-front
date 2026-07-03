@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -10,8 +11,14 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { updateMe } from '@/api/auth'
+import {
+  updateMe,
+  requestAccountDeletion,
+  confirmAccountDeletion,
+  type DeleteChallenge,
+} from '@/api/auth'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
 
 export function ProfileDialog({
   open,
@@ -134,39 +141,162 @@ export function ProfileDialog({
         initial={initial}
       />
 
-      <Dialog open={deactivateOpen} onOpenChange={setDeactivateOpen}>
-        <DialogContent className="max-w-md">
-          <div className="flex gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
-              <Trash2 size={18} />
-            </div>
-            <div>
-              <DialogTitle>Deactivate your account</DialogTitle>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Once deactivated, you can't be assigned work items and be billed
-                for your workspace. To reactivate your account, you will need an
-                invite to a workspace at this email address.
-              </p>
-            </div>
+      <DeactivateAccountDialog
+        open={deactivateOpen}
+        onOpenChange={setDeactivateOpen}
+      />
+    </>
+  )
+}
+
+// Two-step, code-confirmed account deletion, wired to the backend:
+//   1) POST /auth/account/delete/request → emails (or Telegram-DMs) a 6-digit code
+//   2) POST /auth/account/delete/confirm { code } → 204, account anonymized + all
+//      sessions revoked server-side, so we drop local auth and bounce to /login.
+function DeactivateAccountDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean
+  onOpenChange: (v: boolean) => void
+}) {
+  const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
+  const resetWorkspaces = useWorkspaceStore((s) => s.reset)
+
+  const [step, setStep] = useState<'intro' | 'code'>('intro')
+  const [challenge, setChallenge] = useState<DeleteChallenge | null>(null)
+  const [code, setCode] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const codeValid = /^\d{6}$/.test(code)
+
+  // Reset to the intro step whenever the dialog closes, so a reopen starts clean.
+  function handleOpenChange(v: boolean) {
+    if (!v) {
+      setStep('intro')
+      setChallenge(null)
+      setCode('')
+      setBusy(false)
+    }
+    onOpenChange(v)
+  }
+
+  async function requestCode() {
+    setBusy(true)
+    try {
+      const res = await requestAccountDeletion()
+      setChallenge(res)
+      setCode('')
+      setStep('code')
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Could not start account deletion',
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function confirmDelete() {
+    if (!codeValid) return
+    setBusy(true)
+    try {
+      await confirmAccountDeletion(code)
+      // The account is gone server-side — clear local session + workspace state
+      // before leaving so the protected routes don't flash cached data.
+      logout()
+      resetWorkspaces()
+      toast.success('Your account has been deleted')
+      navigate('/login')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Invalid code')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const sentTo =
+    challenge?.channel === 'telegram'
+      ? 'your Telegram'
+      : (challenge?.email ?? 'your email')
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-md">
+        <div className="flex gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+            <Trash2 size={18} />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeactivateOpen(false)}>
-              Cancel
+          <div>
+            <DialogTitle>Deactivate your account</DialogTitle>
+            {step === 'intro' ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                This permanently deletes your account and can't be undone.
+                Workspaces you solely own are transferred to another member or
+                removed. We'll send a confirmation code to verify it's you.
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Enter the 6-digit code we sent to{' '}
+                <span className="font-medium text-foreground">{sentTo}</span> to
+                permanently delete your account.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {step === 'code' && (
+          <div className="pl-14">
+            <Input
+              value={code}
+              onChange={(e) =>
+                setCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') confirmDelete()
+              }}
+              placeholder="000000"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              autoFocus
+              className="text-center tracking-[0.4em]"
+            />
+            <button
+              type="button"
+              onClick={requestCode}
+              disabled={busy}
+              className="mt-2 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-50"
+            >
+              Resend code
+            </button>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+            disabled={busy}
+          >
+            Cancel
+          </Button>
+          {step === 'intro' ? (
+            <Button variant="destructive" onClick={requestCode} disabled={busy}>
+              {busy ? 'Sending…' : 'Continue'}
             </Button>
+          ) : (
             <Button
               variant="destructive"
-              // ponytail: no deactivate endpoint yet — stub until the backend adds one.
-              onClick={() => {
-                toast.info('Account deactivation isn’t supported yet')
-                setDeactivateOpen(false)
-              }}
+              onClick={confirmDelete}
+              disabled={busy || !codeValid}
             >
-              Confirm
+              {busy ? 'Deleting…' : 'Delete account'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
