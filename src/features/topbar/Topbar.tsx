@@ -172,7 +172,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           {/* Settings + Invite members */}
           <div className="grid grid-cols-2 gap-2 px-2 pb-2">
             <button
-              onClick={() => go('/settings/members')}
+              onClick={() => go('/settings/general')}
               className="flex items-center justify-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               <Settings size={13} />

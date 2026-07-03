@@ -68,7 +68,7 @@ export const router = createBrowserRouter([
         element: <SettingsLayout />,
         errorElement: <ErrorPage />,
         children: [
-          { index: true, element: <Navigate to="members" replace /> },
+          { index: true, element: <Navigate to="general" replace /> },
           { path: 'members', element: <MembersPage /> },
           ...SETTINGS_SOON,
         ],
