@@ -20,7 +20,10 @@ axiosRequester.interceptors.response.use(
   (err) =>
     Promise.reject(
       new Error(
-        err.response?.data?.message ??
+        // Backend wraps errors in a `{ error: { code, message } }` envelope —
+        // read that first, then fall back to flatter shapes / the axios default.
+        err.response?.data?.error?.message ??
+          err.response?.data?.message ??
           err.response?.data?.detail ??
           err.message ??
           'Request failed',

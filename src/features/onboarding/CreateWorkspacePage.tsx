@@ -24,6 +24,9 @@ const toSlug = (name: string) =>
     .replace(/^-|-$/g, '')
     .slice(0, 50)
 
+// Short random base36 tail used to make a slug globally unique on collision.
+const randomTail = () => Math.random().toString(36).slice(2, 6)
+
 const schema = z.object({
   name: z.string().min(1, 'Name your workspace').max(100),
   slug: z
@@ -46,16 +49,30 @@ export function CreateWorkspacePage() {
   })
 
   async function onSubmit({ name, slug }: z.infer<typeof schema>) {
-    try {
-      const created = await createWorkspace(name, slug)
-      addWorkspace(created)
-      setWorkspace(created)
-      // Jump straight into the new workspace — no invite-members detour.
-      navigate('/')
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to create workspace',
-      )
+    // Slugs are globally unique on the backend (they are the workspace URL), so a
+    // common name can collide with another user's workspace. Prefix a short random
+    // tail so the slug is unique from the start — `a3f2-my-work` — letting any user
+    // name a workspace "My Work" no matter who else already has one. Retry with a
+    // fresh prefix on the vanishingly rare collision.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = `${randomTail()}-${slug.slice(0, 45)}`
+      try {
+        const created = await createWorkspace(name, candidate)
+        addWorkspace(created)
+        setWorkspace(created)
+        // Jump straight into the new workspace — no invite-members detour.
+        navigate('/')
+        return
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to create workspace'
+        // Only a slug collision is worth retrying; surface anything else as-is.
+        const isConflict = /slug|taken|already exists|conflict/i.test(message)
+        if (isConflict && attempt < 4) continue
+        form.setValue('slug', candidate)
+        toast.error(message)
+        return
+      }
     }
   }
 
