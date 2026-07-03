@@ -15,7 +15,14 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form'
-import { emailSignup, emailVerify, telegramInit, OAUTH_URLS } from '@/api/auth'
+import {
+  emailSignup,
+  emailVerify,
+  telegramInit,
+  telegramStatus,
+  OAUTH_URLS,
+  type AuthResponse,
+} from '@/api/auth'
 import { getWorkspaces } from '@/api/workspace'
 import { useAuthStore } from '@/stores/authStore'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
@@ -113,22 +120,36 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
   const verb = mode === 'login' ? 'Sign in' : 'Sign up'
 
+  // Shared post-login: store session, load workspaces, route.
+  async function finishAuth(user: AuthResponse['user'], token: string) {
+    setAuth(user, token)
+    const workspaces = await getWorkspaces()
+    setWorkspaces(workspaces)
+    if (workspaces.length > 0) {
+      setWorkspace(workspaces[0])
+      navigate('/')
+    } else {
+      navigate('/onboarding/workspace')
+    }
+  }
+
   async function telegram() {
     try {
-      const res = await telegramInit()
-      const link = Object.values(res).find(
-        (v) =>
-          typeof v === 'string' &&
-          (v.startsWith('http') || v.startsWith('t.me')),
-      )
-      if (typeof link === 'string') {
-        window.open(
-          link.startsWith('http') ? link : `https://${link}`,
-          '_blank',
-        )
-      } else {
-        toast.info('Telegram login started — check your Telegram app')
+      const { deep_link, token } = await telegramInit()
+      window.open(deep_link, '_blank')
+      toast.info('Telegram login started — confirm in your Telegram app')
+      // ponytail: naive 2s poll, ~3min ceiling. Backend also expires the
+      // token server-side (returns 'expired'), which breaks the loop early.
+      for (let i = 0; i < 90; i++) {
+        await new Promise((r) => setTimeout(r, 2000))
+        const res = await telegramStatus(token)
+        if (res.status === 'authenticated' && res.access_token && res.user) {
+          await finishAuth(res.user, res.access_token)
+          return
+        }
+        if (res.status === 'expired' || res.status === 'used') break
       }
+      toast.error('Telegram login timed out — try again')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Telegram login failed')
     }
@@ -148,15 +169,7 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
     if (!sentTo) return
     try {
       const result = await emailVerify(sentTo, code)
-      setAuth(result.user, result.access_token)
-      const workspaces = await getWorkspaces()
-      setWorkspaces(workspaces)
-      if (workspaces.length > 0) {
-        setWorkspace(workspaces[0])
-        navigate('/')
-      } else {
-        navigate('/onboarding/workspace')
-      }
+      await finishAuth(result.user, result.access_token)
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : 'Invalid or expired code',

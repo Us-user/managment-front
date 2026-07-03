@@ -41,6 +41,20 @@ export const updateMe = (data: {
   avatar_url?: string | null
 }) => client.patch<unknown, AuthResponse['user']>('/auth/me', data)
 
-// Telegram login returns a t.me deep-link (plus a polling token) to open.
+// Telegram login: /init returns a deep-link to open + a token to poll.
 export const telegramInit = () =>
-  client.post<unknown, Record<string, unknown>>('/auth/telegram/init')
+  client.post<unknown, { deep_link: string; token: string; expires_at: string }>(
+    '/auth/telegram/init',
+  )
+
+// Poll after the user opens the deep-link; tokens arrive once authenticated.
+export const telegramStatus = (token: string) =>
+  client.get<
+    unknown,
+    {
+      status: 'pending' | 'expired' | 'used' | 'authenticated'
+      access_token?: string
+      refresh_token?: string
+      user?: AuthResponse['user']
+    }
+  >(`/auth/telegram/status?token=${encodeURIComponent(token)}`)
