@@ -97,6 +97,7 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const navigate = useNavigate()
   const setAuth = useAuthStore((s) => s.setAuth)
   const setWorkspace = useAuthStore((s) => s.setWorkspace)
+  const setWorkspaces = useAuthStore((s) => s.setWorkspaces)
 
   const [sentTo, setSentTo] = useState<string | null>(null)
 
@@ -148,6 +149,7 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       const result = await emailVerify(sentTo, code)
       setAuth(result.user, result.access_token)
       const workspaces = await getWorkspaces()
+      setWorkspaces(workspaces)
       if (workspaces.length > 0) {
         setWorkspace(workspaces[0])
         navigate('/')

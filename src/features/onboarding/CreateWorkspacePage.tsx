@@ -35,6 +35,9 @@ const schema = z.object({
 export function CreateWorkspacePage() {
   const navigate = useNavigate()
   const setWorkspace = useAuthStore((s) => s.setWorkspace)
+  const addWorkspace = useAuthStore((s) => s.addWorkspace)
+  const workspace = useAuthStore((s) => s.workspace)
+  const email = useAuthStore((s) => s.user?.email)
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -43,9 +46,11 @@ export function CreateWorkspacePage() {
 
   async function onSubmit({ name, slug }: z.infer<typeof schema>) {
     try {
-      const workspace = await createWorkspace(name, slug)
-      setWorkspace(workspace)
-      navigate('/onboarding/members')
+      const created = await createWorkspace(name, slug)
+      addWorkspace(created)
+      setWorkspace(created)
+      // Jump straight into the new workspace — no invite-members detour.
+      navigate('/')
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : 'Failed to create workspace',
@@ -53,8 +58,19 @@ export function CreateWorkspacePage() {
     }
   }
 
+  // Only offer "Go back" when there's already a workspace to return to.
+  function goBack() {
+    if (workspace) navigate('/')
+    else navigate('/login')
+  }
+
   return (
-    <div className="flex min-h-svh items-center justify-center bg-background px-4">
+    <div className="relative flex min-h-svh items-center justify-center bg-background px-4">
+      {email && (
+        <span className="absolute right-6 top-5 text-sm text-muted-foreground">
+          {email}
+        </span>
+      )}
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-foreground">
@@ -131,13 +147,14 @@ export function CreateWorkspacePage() {
               )}
             />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? 'Creating…' : 'Continue'}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Creating…' : 'Create workspace'}
+              </Button>
+              <Button type="button" variant="secondary" onClick={goBack}>
+                Go back
+              </Button>
+            </div>
           </form>
         </Form>
       </div>

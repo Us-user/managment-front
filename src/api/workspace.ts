@@ -13,6 +13,21 @@ export const getWorkspaces = () =>
 export const createWorkspace = (name: string, slug: string) =>
   client.post<unknown, WorkspaceData>('/workspaces/', { name, slug })
 
+export interface WorkspaceMember {
+  workspace_id: string
+  user_id: string
+  role: 'owner' | 'admin' | 'member' | 'guest'
+  user: {
+    id: string
+    email: string
+    display_name: string
+    avatar_url: string | null
+  }
+}
+
+export const getWorkspaceMembers = (workspaceSlug: string) =>
+  client.get<unknown, WorkspaceMember[]>(`/workspaces/${workspaceSlug}/members`)
+
 export const inviteMember = (
   workspaceSlug: string,
   email: string,

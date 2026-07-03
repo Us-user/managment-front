@@ -34,6 +34,7 @@ async function consumeOAuthRedirect() {
   const workspaces = await getWorkspaces().catch(() => [])
 
   if (user) useAuthStore.getState().setAuth(user, token!)
+  useAuthStore.getState().setWorkspaces(workspaces)
   if (workspaces.length > 0) useAuthStore.getState().setWorkspace(workspaces[0])
   if (!user || workspaces.length === 0) {
     setTimeout(

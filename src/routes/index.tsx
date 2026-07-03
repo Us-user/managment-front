@@ -23,6 +23,7 @@ import {
   RefreshCw,
   Layers,
   PanelsTopLeft,
+  Mail,
 } from 'lucide-react'
 
 export const router = createBrowserRouter([
@@ -42,21 +43,166 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         errorElement: <ErrorPage />,
         children: [
-          { index: true, element: <ComingSoon icon={Home} title="Home" subtitle="Your workspace overview will live here." /> },
-          { path: 'drafts', element: <ComingSoon icon={PencilLine} title="Drafts" subtitle="Unsaved work items you started." /> },
-          { path: 'your-work', element: <ComingSoon icon={User} title="Your Work" subtitle="Everything assigned to you, in one place." /> },
-          { path: 'notifications', element: <ComingSoon icon={Bell} title="Notifications" subtitle="Mentions, assignments, and updates." /> },
-          { path: 'ai', element: <ComingSoon icon={Sparkles} title="AI" subtitle="Your AI assistant panel. Interface only for now." /> },
-          { path: 'analytics', element: <ComingSoon icon={BarChart3} title="Analytics" subtitle="Charts and reports across your projects." /> },
-          { path: 'trash', element: <ComingSoon icon={Trash2} title="Trash" subtitle="Deleted items you can restore." /> },
-          { path: 'settings', element: <ComingSoon icon={Settings} title="Settings" subtitle="Profile, workspace, and project settings." /> },
-          { path: 'profile', element: <ComingSoon icon={User} title="Profile" subtitle="Your account details and preferences." /> },
-          { path: 'projects/:id/work-items', element: <ComingSoon icon={CircleDot} title="Work Items" subtitle="Tasks, board and list views for this project." /> },
-          { path: 'projects/:id/cycles', element: <ComingSoon icon={RefreshCw} title="Cycles" subtitle="Time-boxed sprints with progress tracking." /> },
-          { path: 'projects/:id/modules', element: <ComingSoon icon={Layers} title="Modules" subtitle="Group work by feature or deliverable." /> },
-          { path: 'projects/:id/views', element: <ComingSoon icon={PanelsTopLeft} title="Views" subtitle="Saved filtered views for this project." /> },
-          { path: 'projects-list', element: <ComingSoon icon={Layers} title="Projects" subtitle="All workspace projects." /> },
-          { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
+          {
+            index: true,
+            element: (
+              <ComingSoon
+                icon={Home}
+                title="Home"
+                subtitle="Your workspace overview will live here."
+              />
+            ),
+          },
+          {
+            path: 'drafts',
+            element: (
+              <ComingSoon
+                icon={PencilLine}
+                title="Drafts"
+                subtitle="Unsaved work items you started."
+              />
+            ),
+          },
+          {
+            path: 'your-work',
+            element: (
+              <ComingSoon
+                icon={User}
+                title="Your Work"
+                subtitle="Everything assigned to you, in one place."
+              />
+            ),
+          },
+          {
+            path: 'notifications',
+            element: (
+              <ComingSoon
+                icon={Bell}
+                title="Notifications"
+                subtitle="Mentions, assignments, and updates."
+              />
+            ),
+          },
+          {
+            path: 'ai',
+            element: (
+              <ComingSoon
+                icon={Sparkles}
+                title="AI"
+                subtitle="Your AI assistant panel. Interface only for now."
+              />
+            ),
+          },
+          {
+            path: 'analytics',
+            element: (
+              <ComingSoon
+                icon={BarChart3}
+                title="Analytics"
+                subtitle="Charts and reports across your projects."
+              />
+            ),
+          },
+          {
+            path: 'trash',
+            element: (
+              <ComingSoon
+                icon={Trash2}
+                title="Trash"
+                subtitle="Deleted items you can restore."
+              />
+            ),
+          },
+          {
+            path: 'settings',
+            element: (
+              <ComingSoon
+                icon={Settings}
+                title="Settings"
+                subtitle="Profile, workspace, and project settings."
+              />
+            ),
+          },
+          {
+            path: 'workspace-invites',
+            element: (
+              <ComingSoon
+                icon={Mail}
+                title="Workspace invites"
+                subtitle="Pending invitations to other workspaces."
+              />
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <ComingSoon
+                icon={User}
+                title="Profile"
+                subtitle="Your account details and preferences."
+              />
+            ),
+          },
+          {
+            path: 'projects/:id/work-items',
+            element: (
+              <ComingSoon
+                icon={CircleDot}
+                title="Work Items"
+                subtitle="Tasks, board and list views for this project."
+              />
+            ),
+          },
+          {
+            path: 'projects/:id/cycles',
+            element: (
+              <ComingSoon
+                icon={RefreshCw}
+                title="Cycles"
+                subtitle="Time-boxed sprints with progress tracking."
+              />
+            ),
+          },
+          {
+            path: 'projects/:id/modules',
+            element: (
+              <ComingSoon
+                icon={Layers}
+                title="Modules"
+                subtitle="Group work by feature or deliverable."
+              />
+            ),
+          },
+          {
+            path: 'projects/:id/views',
+            element: (
+              <ComingSoon
+                icon={PanelsTopLeft}
+                title="Views"
+                subtitle="Saved filtered views for this project."
+              />
+            ),
+          },
+          {
+            path: 'projects-list',
+            element: (
+              <ComingSoon
+                icon={Layers}
+                title="Projects"
+                subtitle="All workspace projects."
+              />
+            ),
+          },
+          {
+            path: 'more',
+            element: (
+              <ComingSoon
+                icon={BarChart3}
+                title="More"
+                subtitle="Additional workspace features."
+              />
+            ),
+          },
           { path: 'forms', element: <FormDemoPage /> },
           { path: 'overlays', element: <OverlayDemoPage /> },
           { path: 'data-display', element: <DataDisplayDemoPage /> },
