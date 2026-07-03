@@ -9,6 +9,7 @@ import { CreateWorkspacePage } from '@/features/onboarding/CreateWorkspacePage'
 import { InviteMembersPage } from '@/features/onboarding/InviteMembersPage'
 import { SettingsLayout } from '@/features/settings/SettingsLayout'
 import { MembersPage } from '@/features/settings/MembersPage'
+import { GeneralPage } from '@/features/settings/GeneralPage'
 import {
   Home,
   PencilLine,
@@ -27,7 +28,6 @@ import {
 
 // The settings pages that aren't built yet — each renders inside SettingsLayout.
 const SETTINGS_SOON = [
-  'general',
   'billing',
   'imports',
   'exports',
@@ -69,6 +69,7 @@ export const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
           { index: true, element: <Navigate to="general" replace /> },
+          { path: 'general', element: <GeneralPage /> },
           { path: 'members', element: <MembersPage /> },
           ...SETTINGS_SOON,
         ],

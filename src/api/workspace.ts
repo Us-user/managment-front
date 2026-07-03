@@ -13,6 +13,12 @@ export const getWorkspaces = () =>
 export const createWorkspace = (name: string, slug: string) =>
   client.post<unknown, WorkspaceData>('/workspaces/', { name, slug })
 
+// Backend only accepts name/slug.
+export const updateWorkspace = (
+  slug: string,
+  data: { name?: string; slug?: string },
+) => client.patch<unknown, WorkspaceData>(`/workspaces/${slug}`, data)
+
 export interface WorkspaceMember {
   workspace_id: string
   user_id: string
