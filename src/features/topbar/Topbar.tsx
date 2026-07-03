@@ -34,6 +34,7 @@ import {
   getWorkspaceMembers,
   type WorkspaceData,
 } from '@/api/workspace'
+import { ProfileDialog } from '@/features/profile/ProfileDialog'
 
 interface TopbarProps {
   onMenuClick: () => void
@@ -61,6 +62,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const logout = useAuthStore((s) => s.logout)
 
   const [switcherOpen, setSwitcherOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [meta, setMeta] = useState<Record<string, WsMeta>>({})
 
   const wsInitial = workspace?.name?.[0]?.toUpperCase() ?? 'W'
@@ -293,7 +295,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               </p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/profile')}>
+            <DropdownMenuItem onClick={() => setProfileOpen(true)}>
               <User size={14} className="mr-2" />
               Profile
             </DropdownMenuItem>
@@ -308,6 +310,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {profileOpen && <ProfileDialog open onOpenChange={setProfileOpen} />}
     </header>
   )
 }
