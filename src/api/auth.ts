@@ -41,6 +41,25 @@ export const updateMe = (data: {
   avatar_url?: string | null
 }) => client.patch<unknown, AuthResponse['user']>('/auth/me', data)
 
+// Code-confirmed account deletion — a two-step flow (both require a session).
+// Step 1: request a 6-digit code, delivered to the account's email or, for a
+// Telegram-only account, through the bot. `channel` says which; `email` is set
+// only for the email channel. A 400 means the account has no email/Telegram to
+// reach — the user must link one first.
+export interface DeleteChallenge {
+  status: 'otp_sent'
+  channel: 'email' | 'telegram'
+  email?: string | null
+}
+
+export const requestAccountDeletion = () =>
+  client.post<unknown, DeleteChallenge>('/auth/account/delete/request')
+
+// Step 2: confirm with the code. On success (204) the account is anonymized and
+// every session is revoked server-side, so the client must drop its local auth.
+export const confirmAccountDeletion = (code: string) =>
+  client.post<unknown, void>('/auth/account/delete/confirm', { code })
+
 // Telegram login: /init returns a deep-link to open + a token to poll.
 export const telegramInit = () =>
   client.post<unknown, { deep_link: string; token: string; expires_at: string }>(
