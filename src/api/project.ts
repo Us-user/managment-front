@@ -20,7 +20,12 @@ export const getProject = (slug: string, id: string) =>
 
 export const createProject = (
   slug: string,
-  data: { name: string; identifier: string; description?: string },
+  data: {
+    name: string
+    identifier: string
+    description?: string
+    lead_id?: string
+  },
 ) => client.post<unknown, Project>(`/workspaces/${slug}/projects/`, data)
 
 export const updateProject = (
