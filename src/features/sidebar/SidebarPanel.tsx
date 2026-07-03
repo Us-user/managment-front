@@ -13,9 +13,6 @@ import {
   PanelLeftClose,
   FolderOpen,
   MoreHorizontal,
-  WrapText,
-  Layers2,
-  Table2,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -29,12 +26,6 @@ const WORKSPACE_ITEMS = [
   { label: 'More', icon: MoreHorizontal, to: '/more' },
 ]
 
-const DEV_ITEMS = [
-  { label: 'Forms (B4.1 / B4.3)', icon: WrapText, to: '/forms' },
-  { label: 'Overlays (B4.2)', icon: Layers2, to: '/overlays' },
-  { label: 'Data display (B4.4)', icon: Table2, to: '/data-display' },
-]
-
 const SAMPLE_PROJECTS = [
   { id: 'taskm', identifier: 'TASKM', name: 'Task Management', color: '#6366f1' },
 ]
@@ -44,7 +35,6 @@ export function SidebarPanel({ className }: { className?: string }) {
   const location = useLocation()
   const [workspaceOpen, setWorkspaceOpen] = useState(true)
   const [projectsOpen, setProjectsOpen] = useState(true)
-  const [devOpen, setDevOpen] = useState(true)
 
   function isActive(to: string) {
     if (to === '/') return location.pathname === '/'
@@ -114,36 +104,6 @@ export function SidebarPanel({ className }: { className?: string }) {
                   key={item.label}
                   onClick={() => navigate(item.to)}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <item.icon size={14} className="shrink-0 text-muted-foreground" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Dev / Components section */}
-        <div className="mb-3">
-          <button
-            onClick={() => setDevOpen(o => !o)}
-            className="flex w-full items-center justify-between px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <span>Dev / Components</span>
-            {devOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          </button>
-          {devOpen && (
-            <div className="mt-0.5 space-y-0.5">
-              {DEV_ITEMS.map(item => (
-                <button
-                  key={item.to}
-                  onClick={() => navigate(item.to)}
-                  className={cn(
-                    'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                    isActive(item.to)
-                      ? 'bg-nav-active-bg text-primary font-medium'
-                      : 'text-foreground hover:bg-muted',
-                  )}
                 >
                   <item.icon size={14} className="shrink-0 text-muted-foreground" />
                   {item.label}

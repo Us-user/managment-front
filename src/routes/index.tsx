@@ -3,9 +3,6 @@ import { AppShell } from '@/components/layout/AppShell'
 import { ComingSoon } from '@/components/ComingSoon'
 import { NotFoundPage } from '@/routes/NotFoundPage'
 import { ErrorPage } from '@/routes/ErrorPage'
-import { FormDemoPage } from '@/features/forms/FormDemoPage'
-import { OverlayDemoPage } from '@/features/overlays/OverlayDemoPage'
-import { DataDisplayDemoPage } from '@/features/data-display/DataDisplayDemoPage'
 import {
   Home,
   PencilLine,
@@ -47,9 +44,6 @@ export const router = createBrowserRouter([
       { path: 'projects/:id/views', element: <ComingSoon icon={PanelsTopLeft} title="Views" subtitle="Saved filtered views for this project." /> },
       { path: 'projects-list', element: <ComingSoon icon={Layers} title="Projects" subtitle="All workspace projects." /> },
       { path: 'more', element: <ComingSoon icon={BarChart3} title="More" subtitle="Additional workspace features." /> },
-      { path: 'forms', element: <FormDemoPage /> },
-      { path: 'overlays', element: <OverlayDemoPage /> },
-      { path: 'data-display', element: <DataDisplayDemoPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
