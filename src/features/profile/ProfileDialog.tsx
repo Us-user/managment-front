@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { updateMe } from '@/api/auth'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -129,15 +129,38 @@ export function ProfileDialog({
         initial={initial}
       />
 
-      <ConfirmDialog
-        open={deactivateOpen}
-        onOpenChange={setDeactivateOpen}
-        title="Deactivate your account"
-        description="Once deactivated, you can't be assigned work items and be billed for your workspace. To reactivate your account, you will need an invite to a workspace at this email address."
-        confirmLabel="Confirm"
-        // ponytail: no deactivate endpoint yet — stub until the backend adds one.
-        onConfirm={() => toast.info('Account deactivation isn’t supported yet')}
-      />
+      <Dialog open={deactivateOpen} onOpenChange={setDeactivateOpen}>
+        <DialogContent className="max-w-md">
+          <div className="flex gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+              <Trash2 size={18} />
+            </div>
+            <div>
+              <DialogTitle>Deactivate your account</DialogTitle>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Once deactivated, you can't be assigned work items and be billed
+                for your workspace. To reactivate your account, you will need an
+                invite to a workspace at this email address.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeactivateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              // ponytail: no deactivate endpoint yet — stub until the backend adds one.
+              onClick={() => {
+                toast.info('Account deactivation isn’t supported yet')
+                setDeactivateOpen(false)
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }
