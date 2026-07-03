@@ -30,8 +30,11 @@ export function GeneralPage() {
   const setWorkspaces = useWorkspaceStore((s) => s.setWorkspaces)
 
   const [name, setName] = useState(workspace?.name ?? '')
-  // ponytail: backend has no timezone field — display-only until it does.
-  const [tz, setTz] = useState('UTC')
+  // ponytail: backend has no timezone field — display-only. Default to the
+  // browser's own zone instead of a hardcoded one.
+  const [tz, setTz] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+  )
   const [busy, setBusy] = useState(false)
   const [logoOpen, setLogoOpen] = useState(false)
 

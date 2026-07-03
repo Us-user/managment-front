@@ -10,6 +10,9 @@ import { InviteMembersPage } from '@/features/onboarding/InviteMembersPage'
 import { SettingsLayout } from '@/features/settings/SettingsLayout'
 import { MembersPage } from '@/features/settings/MembersPage'
 import { GeneralPage } from '@/features/settings/GeneralPage'
+import { ProjectsPage } from '@/features/projects/ProjectsPage'
+import { ProjectSettingsLayout } from '@/features/projects/ProjectSettingsLayout'
+import { ProjectGeneralPage } from '@/features/projects/ProjectGeneralPage'
 import {
   Home,
   PencilLine,
@@ -51,6 +54,32 @@ const SETTINGS_SOON = [
   ),
 }))
 
+// Project-settings sections without a real page yet.
+const PROJECT_SETTINGS_SOON = [
+  'members',
+  'worklogs',
+  'cycles',
+  'modules',
+  'views',
+  'pages',
+  'intake',
+  'time-tracking',
+  'milestones',
+  'updates',
+  'states',
+  'labels',
+  'estimates',
+].map((path) => ({
+  path,
+  element: (
+    <ComingSoon
+      icon={Settings}
+      title={path[0].toUpperCase() + path.slice(1)}
+      subtitle="This project setting is coming soon."
+    />
+  ),
+}))
+
 export const router = createBrowserRouter([
   { path: '/login', element: <AuthPage /> },
   {
@@ -72,6 +101,16 @@ export const router = createBrowserRouter([
           { path: 'general', element: <GeneralPage /> },
           { path: 'members', element: <MembersPage /> },
           ...SETTINGS_SOON,
+        ],
+      },
+      {
+        path: '/projects/:projectId/settings',
+        element: <ProjectSettingsLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <Navigate to="general" replace /> },
+          { path: 'general', element: <ProjectGeneralPage /> },
+          ...PROJECT_SETTINGS_SOON,
         ],
       },
       {
@@ -209,16 +248,7 @@ export const router = createBrowserRouter([
               />
             ),
           },
-          {
-            path: 'projects-list',
-            element: (
-              <ComingSoon
-                icon={Layers}
-                title="Projects"
-                subtitle="All workspace projects."
-              />
-            ),
-          },
+          { path: 'projects-list', element: <ProjectsPage /> },
           {
             path: 'more',
             element: (
