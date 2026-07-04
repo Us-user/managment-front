@@ -8,6 +8,7 @@ import {
   Settings2,
   CircleDot,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -27,34 +28,21 @@ function formatDateTime() {
   })
 }
 
-const QUICKLINKS = [
-  { emoji: '⚙️', title: 'Plane Changelog', ago: '2 days ago' },
-  { emoji: '📄', title: 'Plane Docs', ago: '2 days ago' },
-  { emoji: '⚙️', title: 'Plane Blogs', ago: '2 days ago' },
-]
-
-const RECENTS = [
-  {
-    id: 'TASKM-11',
-    title: 'A1.2 — Login page.',
-    ago: 'about 1 hour ago',
-    color: '#6366f1',
-    short: 'TM',
-    assignee: 'Y',
-    assigneeColor: '#f59e0b',
-  },
-  {
-    id: 'TASKM-10',
-    title: 'Register with Google and github (addition telegram)',
-    ago: 'about 1 hour ago',
-    color: '#6366f1',
-    short: 'TM',
-    assignee: 'Y',
-    assigneeColor: '#f59e0b',
-  },
+// ponytail: demo history — swagger has no workspace-wide activity/recent
+// endpoint (only per-issue activity), so this stays mock like the chat above.
+const HISTORY = [
+  { id: 'TASKM-22', title: 'Notification by Telegramm', ago: 'about 22 hours ago', assignee: 'Y', assigneeColor: '#f59e0b' },
+  { id: 'TASKM-11', title: 'A1.2 — Login page.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
+  { id: 'TASKM-10', title: 'Register with Google and github (addition telegram)', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
+  { id: 'TASKM-12', title: 'A1.3 — Logout.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
+  { id: 'TASKM-13', title: 'A1.4 — Profile page.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
+  { id: 'TASKM-14', title: 'B0.1 — Design tokens + Tailwind theme.', ago: '2 days ago', assignee: 'A', assigneeColor: '#8b5cf6' },
+  { id: 'TASKM-15', title: 'B0.2 — App shell + layout.', ago: '2 days ago', assignee: 'A', assigneeColor: '#8b5cf6' },
 ]
 
 export function HomePage() {
+  const user = useAuthStore((s) => s.user)
+
   return (
     <div className="flex h-full flex-col">
       {/* Page top bar */}
@@ -75,14 +63,14 @@ export function HomePage() {
           {/* Greeting */}
           <div className="mb-8 text-center">
             <h1 className="mb-1 text-2xl font-bold text-foreground">
-              {getGreeting()}, Abdulloh Homidov
+              {getGreeting()}, {user?.display_name ?? 'there'}
             </h1>
             <p className="text-sm font-medium text-primary">
               ☁️ {formatDateTime()}
             </p>
           </div>
 
-          {/* Ask Plane AI */}
+          {/* Ask Plane AI — demo */}
           <section className="mb-6">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">
@@ -130,54 +118,19 @@ export function HomePage() {
             </div>
           </section>
 
-          {/* Quicklinks */}
-          <section className="mb-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">
-                Quicklinks
-              </h2>
-              <button className="flex items-center gap-1 text-xs text-primary hover:underline transition-colors">
-                <Plus size={13} />
-                Add quick Link
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {QUICKLINKS.map((link, i) => (
-                <div
-                  key={i}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card p-3 hover:bg-muted transition-colors"
-                >
-                  <span className="text-base">{link.emoji}</span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {link.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{link.ago}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Recents */}
+          {/* History — what we did */}
           <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Recents</h2>
-              <button className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors">
-                All <span>⌄</span>
-              </button>
+            <div className="mb-3">
+              <h2 className="text-sm font-semibold text-foreground">History</h2>
             </div>
             <div className="space-y-2">
-              {RECENTS.map((item) => (
+              {HISTORY.map((item) => (
                 <div
                   key={item.id}
                   className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted transition-colors"
                 >
-                  <div
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"
-                    style={{ backgroundColor: item.color }}
-                  >
-                    {item.short}
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-indigo-500 text-[11px] font-bold text-white">
+                    TM
                   </div>
                   <div className="flex flex-1 items-center gap-2 overflow-hidden">
                     <span className="shrink-0 text-xs font-medium text-muted-foreground">
@@ -206,6 +159,13 @@ export function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* ponytail: demo link — no workspace-wide work-items page to route to yet */}
+            <div className="mt-4 text-center">
+              <button className="text-sm font-medium text-primary hover:underline">
+                See all
+              </button>
             </div>
           </section>
         </div>

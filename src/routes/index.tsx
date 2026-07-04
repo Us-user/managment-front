@@ -17,8 +17,8 @@ import { ProjectLabelsPage } from '@/features/projects/ProjectLabelsPage'
 import { WorkItemsPage } from '@/features/work-items/WorkItemsPage'
 import { WorkspaceInvitesPage } from '@/features/invitations/WorkspaceInvitesPage'
 import { NotificationsPage } from '@/features/notifications/NotificationsPage'
+import { HomePage } from '@/features/home/HomePage'
 import {
-  Home,
   PencilLine,
   User,
   Sparkles,
@@ -119,16 +119,7 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         errorElement: <ErrorPage />,
         children: [
-          {
-            index: true,
-            element: (
-              <ComingSoon
-                icon={Home}
-                title="Home"
-                subtitle="Your workspace overview will live here."
-              />
-            ),
-          },
+          { index: true, element: <HomePage /> },
           {
             path: 'drafts',
             element: (
