@@ -13,6 +13,7 @@ import { GeneralPage } from '@/features/settings/GeneralPage'
 import { ProjectsPage } from '@/features/projects/ProjectsPage'
 import { ProjectSettingsLayout } from '@/features/projects/ProjectSettingsLayout'
 import { ProjectGeneralPage } from '@/features/projects/ProjectGeneralPage'
+import { WorkspaceInvitesPage } from '@/features/invitations/WorkspaceInvitesPage'
 import {
   Home,
   PencilLine,
@@ -26,7 +27,6 @@ import {
   RefreshCw,
   Layers,
   PanelsTopLeft,
-  Mail,
 } from 'lucide-react'
 
 // The settings pages that aren't built yet — each renders inside SettingsLayout.
@@ -188,15 +188,12 @@ export const router = createBrowserRouter([
               />
             ),
           },
+          // Canonical path — the backend's invite emails link here.
+          { path: 'invitations', element: <WorkspaceInvitesPage /> },
+          // Back-compat with the old placeholder link.
           {
             path: 'workspace-invites',
-            element: (
-              <ComingSoon
-                icon={Mail}
-                title="Workspace invites"
-                subtitle="Pending invitations to other workspaces."
-              />
-            ),
+            element: <Navigate to="/invitations" replace />,
           },
           {
             path: 'profile',

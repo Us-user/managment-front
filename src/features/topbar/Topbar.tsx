@@ -225,7 +225,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             <Plus size={14} className="mr-2 text-muted-foreground" />
             Create workspace
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => go('/workspace-invites')}>
+          <DropdownMenuItem onClick={() => go('/invitations')}>
             <Mail size={14} className="mr-2 text-muted-foreground" />
             Workspace invites
           </DropdownMenuItem>
