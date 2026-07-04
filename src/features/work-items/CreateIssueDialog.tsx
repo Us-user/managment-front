@@ -292,13 +292,17 @@ export function CreateIssueDialog({
   const [members, setMembers] = useState<WorkspaceMember[]>([])
   const [busy, setBusy] = useState(false)
 
-  // Default the state to the project's default (or first) column each time the
-  // dialog opens, and load members for the assignee picker.
+  // Default the state to the Backlog column each time the dialog opens (falling
+  // back to the project default / first column), and load members for the
+  // assignee picker.
   useEffect(() => {
     if (!open) return
     let cancelled = false
     ;(async () => {
-      const fallback = states.find((s) => s.is_default) ?? states[0]
+      const fallback =
+        states.find((s) => s.group === 'backlog') ??
+        states.find((s) => s.is_default) ??
+        states[0]
       setStateId((prev) => prev || fallback?.id || '')
       const list = await getWorkspaceMembers(slug).catch(() => [])
       if (!cancelled) setMembers(list)
