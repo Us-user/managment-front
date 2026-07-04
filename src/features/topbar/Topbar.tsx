@@ -29,12 +29,17 @@ import {
 import { useTheme } from '@/contexts/ThemeContext'
 import { useAuthStore } from '@/stores/authStore'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import {
   getWorkspaces,
   getWorkspaceMembers,
   type WorkspaceData,
 } from '@/api/workspace'
+import { getNotifications } from '@/api/notification'
 import { ProfileDialog } from '@/features/profile/ProfileDialog'
+
+// How often the bell re-checks the unread count while the app is open.
+const NOTIFICATION_POLL_MS = 45_000
 
 interface TopbarProps {
   onMenuClick: () => void
@@ -60,6 +65,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const setWorkspaces = useWorkspaceStore((s) => s.setWorkspaces)
   const resetWorkspaces = useWorkspaceStore((s) => s.reset)
   const logout = useAuthStore((s) => s.logout)
+  const unreadCount = useNotificationStore((s) => s.unreadCount)
+  const setUnreadCount = useNotificationStore((s) => s.setUnreadCount)
 
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -95,6 +102,27 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       cancelled = true
     }
   }, [switcherOpen, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the bell's unread badge fresh: poll the count on mount and on an
+  // interval while a workspace is selected. The NotificationsPage keeps the same
+  // store value in sync as the user reads items, so the badge updates instantly.
+  const slug = workspace?.slug
+  useEffect(() => {
+    if (!slug) return
+    let cancelled = false
+    const refresh = async () => {
+      const res = await getNotifications(slug, { read: false, limit: 1 }).catch(
+        () => null,
+      )
+      if (!cancelled && res) setUnreadCount(res.unread_count)
+    }
+    void refresh()
+    const id = setInterval(refresh, NOTIFICATION_POLL_MS)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [slug, setUnreadCount])
 
   function switchWorkspace(ws: WorkspaceData) {
     setWorkspace(ws)
@@ -269,9 +297,19 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         </button>
         <button
           onClick={() => navigate('/notifications')}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors"
+          aria-label={
+            unreadCount > 0
+              ? `Notifications, ${unreadCount} unread`
+              : 'Notifications'
+          }
+          className="relative flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors"
         >
           <Bell size={15} />
+          {unreadCount > 0 && (
+            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Profile dropdown */}

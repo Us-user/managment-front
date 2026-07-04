@@ -16,11 +16,11 @@ import { ProjectGeneralPage } from '@/features/projects/ProjectGeneralPage'
 import { ProjectLabelsPage } from '@/features/projects/ProjectLabelsPage'
 import { WorkItemsPage } from '@/features/work-items/WorkItemsPage'
 import { WorkspaceInvitesPage } from '@/features/invitations/WorkspaceInvitesPage'
+import { NotificationsPage } from '@/features/notifications/NotificationsPage'
 import {
   Home,
   PencilLine,
   User,
-  Bell,
   Sparkles,
   BarChart3,
   Trash2,
@@ -149,16 +149,7 @@ export const router = createBrowserRouter([
               />
             ),
           },
-          {
-            path: 'notifications',
-            element: (
-              <ComingSoon
-                icon={Bell}
-                title="Notifications"
-                subtitle="Mentions, assignments, and updates."
-              />
-            ),
-          },
+          { path: 'notifications', element: <NotificationsPage /> },
           {
             path: 'ai',
             element: (
