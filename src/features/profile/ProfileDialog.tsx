@@ -59,7 +59,18 @@ export function ProfileDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl gap-0 overflow-hidden p-0">
+        <DialogContent
+          className="max-w-3xl gap-0 overflow-hidden p-0"
+          // The sub-dialogs portal as siblings, so clicking inside them (e.g.
+          // Cancel) reads as an outside interaction here and would close the
+          // profile too. Block dismissal while a sub-dialog is open.
+          onInteractOutside={(e) => {
+            if (deactivateOpen || imgOpen) e.preventDefault()
+          }}
+          onEscapeKeyDown={(e) => {
+            if (deactivateOpen || imgOpen) e.preventDefault()
+          }}
+        >
           {/* Cover */}
           <div className="relative h-32 bg-muted">
             <span className="absolute right-3 bottom-3 rounded border border-border bg-background/80 px-2 py-1 text-xs">
