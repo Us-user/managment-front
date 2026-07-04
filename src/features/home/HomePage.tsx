@@ -96,7 +96,7 @@ export function HomePage() {
             new Date(b.iss.updated_at).getTime() -
             new Date(a.iss.updated_at).getTime(),
         )
-        .slice(0, 8)
+        .slice(0, 5)
         .map(({ iss, ident }) => {
           const name = iss.assignees[0]?.user?.display_name ?? ''
           return {
