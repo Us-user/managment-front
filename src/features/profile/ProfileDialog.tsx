@@ -61,15 +61,12 @@ export function ProfileDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className="max-w-3xl gap-0 overflow-hidden p-0"
-          // The sub-dialogs portal as siblings, so clicking inside them (e.g.
-          // Cancel) reads as an outside interaction here and would close the
-          // profile too. Block dismissal while a sub-dialog is open.
-          onInteractOutside={(e) => {
-            if (deactivateOpen || imgOpen) e.preventDefault()
-          }}
-          onEscapeKeyDown={(e) => {
-            if (deactivateOpen || imgOpen) e.preventDefault()
-          }}
+          // Close only via the X. A sub-dialog (deactivate/image) portals as a
+          // sibling, so closing it emits a focus/pointer-outside event here —
+          // and it fires *after* our open flags reset, so a conditional guard
+          // loses the race. Ignoring outside interaction unconditionally is the
+          // only race-free fix, and it also stops mis-clicks losing edits.
+          onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Cover */}
           <div className="relative h-32 bg-muted">
