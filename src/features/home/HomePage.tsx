@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   Home,
   Maximize2,
@@ -9,6 +10,9 @@ import {
   CircleDot,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import { useWorkspaceStore } from '@/stores/workspaceStore'
+import { getProjects } from '@/api/project'
+import { getIssues } from '@/api/issue'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -28,20 +32,97 @@ function formatDateTime() {
   })
 }
 
-// ponytail: demo history — swagger has no workspace-wide activity/recent
-// endpoint (only per-issue activity), so this stays mock like the chat above.
-const HISTORY = [
-  { id: 'TASKM-22', title: 'Notification by Telegramm', ago: 'about 22 hours ago', assignee: 'Y', assigneeColor: '#f59e0b' },
-  { id: 'TASKM-11', title: 'A1.2 — Login page.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
-  { id: 'TASKM-10', title: 'Register with Google and github (addition telegram)', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
-  { id: 'TASKM-12', title: 'A1.3 — Logout.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
-  { id: 'TASKM-13', title: 'A1.4 — Profile page.', ago: '3 days ago', assignee: 'Y', assigneeColor: '#f59e0b' },
-  { id: 'TASKM-14', title: 'B0.1 — Design tokens + Tailwind theme.', ago: '2 days ago', assignee: 'A', assigneeColor: '#8b5cf6' },
-  { id: 'TASKM-15', title: 'B0.2 — App shell + layout.', ago: '2 days ago', assignee: 'A', assigneeColor: '#8b5cf6' },
-]
+// ponytail: naive relative time — good enough for a "x ago" label.
+function timeAgo(iso: string) {
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `about ${hrs} hour${hrs === 1 ? '' : 's'} ago`
+  const days = Math.round(hrs / 24)
+  return `${days} day${days === 1 ? '' : 's'} ago`
+}
+
+const PALETTE = ['#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#3b82f6']
+const colorFor = (s: string) =>
+  PALETTE[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % PALETTE.length]
+
+interface HistoryItem {
+  key: string
+  code: string
+  short: string
+  title: string
+  ago: string
+  assignee: string
+  assigneeColor: string
+}
 
 export function HomePage() {
   const user = useAuthStore((s) => s.user)
+  const workspace = useWorkspaceStore((s) => s.workspace)
+
+  const [message, setMessage] = useState('')
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const wsName = workspace?.name ?? 'Workspace'
+  const wsInitial = wsName[0]?.toUpperCase() ?? 'W'
+
+  // History = the work items we've been doing, newest first. No workspace-wide
+  // endpoint exists, so fan out across projects and merge.
+  // ponytail: N+1 (one issues call per project) — fine for small workspaces; a
+  // workspace-level activity endpoint would replace this.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setLoading(true)
+      if (!workspace) return
+      const projects = await getProjects(workspace.slug).catch(() => [])
+      const perProject = await Promise.all(
+        projects.map((p) =>
+          getIssues(workspace.slug, p.id, {
+            sort_by: 'updated_at',
+            order: 'desc',
+            limit: 5,
+          })
+            .then((r) => r.data.map((iss) => ({ iss, ident: p.identifier })))
+            .catch(() => []),
+        ),
+      )
+      const items: HistoryItem[] = perProject
+        .flat()
+        .sort(
+          (a, b) =>
+            new Date(b.iss.updated_at).getTime() -
+            new Date(a.iss.updated_at).getTime(),
+        )
+        .slice(0, 8)
+        .map(({ iss, ident }) => {
+          const name = iss.assignees[0]?.user?.display_name ?? ''
+          return {
+            key: iss.id,
+            code: `${ident}-${iss.sequence_id}`,
+            short: ident.slice(0, 2).toUpperCase(),
+            title: iss.title,
+            ago: timeAgo(iss.updated_at),
+            assignee: name[0]?.toUpperCase() ?? '?',
+            assigneeColor: colorFor(iss.assignees[0]?.user_id ?? iss.id),
+          }
+        })
+      if (!cancelled) setHistory(items)
+    })().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [workspace?.slug]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ponytail: demo chat — no AI backend, so sending just clears the box.
+  function send() {
+    if (!message.trim()) return
+    setMessage('')
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -70,11 +151,11 @@ export function HomePage() {
             </p>
           </div>
 
-          {/* Ask Plane AI — demo */}
+          {/* Ask AI — demo */}
           <section className="mb-6">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">
-                Ask Plane AI
+                Ask {wsName} AI
               </h2>
               <button className="text-muted-foreground hover:text-foreground transition-colors">
                 <Maximize2 size={14} />
@@ -83,15 +164,24 @@ export function HomePage() {
             <div className="rounded-lg border border-border bg-sidebar p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground">
-                  A
+                  {wsInitial}
                 </div>
                 <span className="text-sm font-medium text-foreground">
-                  Alfa-Bots
+                  {wsName}
                 </span>
               </div>
-              <p className="mb-4 text-sm text-muted-foreground">
-                How can I help you today?
-              </p>
+              <input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    send()
+                  }
+                }}
+                placeholder="How can I help you today?"
+                className="mb-4 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              />
               <div className="flex items-center justify-between border-t border-border pt-3">
                 <div className="flex items-center gap-3">
                   <button className="text-muted-foreground hover:text-foreground transition-colors">
@@ -110,7 +200,11 @@ export function HomePage() {
                   <button className="text-muted-foreground hover:text-foreground transition-colors">
                     <Mic size={15} />
                   </button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                  <button
+                    onClick={send}
+                    disabled={!message.trim()}
+                    className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-40"
+                  >
                     <ArrowUp size={14} />
                   </button>
                 </div>
@@ -118,55 +212,68 @@ export function HomePage() {
             </div>
           </section>
 
-          {/* History — what we did */}
+          {/* History — what we've been doing */}
           <section>
             <div className="mb-3">
               <h2 className="text-sm font-semibold text-foreground">History</h2>
             </div>
-            <div className="space-y-2">
-              {HISTORY.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted transition-colors"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-indigo-500 text-[11px] font-bold text-white">
-                    TM
-                  </div>
-                  <div className="flex flex-1 items-center gap-2 overflow-hidden">
-                    <span className="shrink-0 text-xs font-medium text-muted-foreground">
-                      {item.id}
-                    </span>
-                    <span className="truncate text-sm text-foreground">
-                      {item.title}
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {item.ago}
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button className="text-muted-foreground hover:text-foreground transition-colors">
-                      <CircleDot size={14} />
-                    </button>
-                    <button className="text-muted-foreground hover:text-foreground transition-colors">
-                      <Settings2 size={14} />
-                    </button>
-                    <div
-                      className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                      style={{ backgroundColor: item.assigneeColor }}
-                    >
-                      {item.assignee}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* ponytail: demo link — no workspace-wide work-items page to route to yet */}
-            <div className="mt-4 text-center">
-              <button className="text-sm font-medium text-primary hover:underline">
-                See all
-              </button>
-            </div>
+            {loading ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Loading…
+              </p>
+            ) : history.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Nothing here yet — work items you touch will show up.
+              </p>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  {history.map((item) => (
+                    <div
+                      key={item.key}
+                      className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted transition-colors"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-indigo-500 text-[11px] font-bold text-white">
+                        {item.short}
+                      </div>
+                      <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                        <span className="shrink-0 text-xs font-medium text-muted-foreground">
+                          {item.code}
+                        </span>
+                        <span className="truncate text-sm text-foreground">
+                          {item.title}
+                        </span>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {item.ago}
+                        </span>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button className="text-muted-foreground hover:text-foreground transition-colors">
+                          <CircleDot size={14} />
+                        </button>
+                        <button className="text-muted-foreground hover:text-foreground transition-colors">
+                          <Settings2 size={14} />
+                        </button>
+                        <div
+                          className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                          style={{ backgroundColor: item.assigneeColor }}
+                        >
+                          {item.assignee}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ponytail: demo link — no workspace-wide work-items page to route to yet */}
+                <div className="mt-4 text-center">
+                  <button className="text-sm font-medium text-primary hover:underline">
+                    See all
+                  </button>
+                </div>
+              </>
+            )}
           </section>
         </div>
       </div>
