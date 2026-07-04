@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Briefcase,
   RotateCw,
   CircleDot,
-  Timer,
-  CheckCircle2,
   CalendarClock,
   AlertCircle,
   Inbox,
+  BellOff,
+  Info,
   type LucideIcon,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -52,7 +51,7 @@ const PRIORITY_ORDER: IssuePriorityValue[] = [
   'low',
   'none',
 ]
-// Hex equivalents of the priority palette, for the distribution bar segments.
+// Hex equivalents of the priority palette, for the distribution/workload bars.
 const PRIORITY_BAR: Record<IssuePriorityValue, string> = {
   urgent: '#e5484d',
   high: '#f76808',
@@ -85,7 +84,7 @@ function formatDue(iso: string) {
   return d.toLocaleDateString(undefined, opts)
 }
 
-type Tab = 'assigned' | 'created'
+type MainTab = 'summary' | 'assigned' | 'created' | 'subscribed'
 type GroupBy = 'project' | 'state' | 'priority'
 
 interface Segment {
@@ -106,8 +105,16 @@ interface IssueGroup {
   items: Issue[]
 }
 
+interface Summary {
+  total: number
+  inProgress: number
+  completed: number
+  overdue: number
+}
+
 export function YourWorkPage() {
   const slug = useWorkspaceStore((s) => s.workspace?.slug)
+  const workspaceName = useWorkspaceStore((s) => s.workspace?.name)
   const user = useAuthStore((s) => s.user)
   const userId = user?.id
 
@@ -117,25 +124,30 @@ export function YourWorkPage() {
   >({})
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
 
-  const [tab, setTab] = useState<Tab>('assigned')
-  const [groupBy, setGroupBy] = useState<GroupBy>('project')
+  const [tab, setTab] = useState<MainTab>('summary')
+  const [groupBy, setGroupBy] = useState<GroupBy>('state')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  // Load every project, then its states + issues in parallel. Issues live only
-  // under a project on the backend, so "your work" is assembled by fanning out
-  // across projects and filtering to the current user client-side.
-  useEffect(() => {
-    if (!slug) return
-    let cancelled = false
-    ;(async () => {
-      setLoading(true)
-      setError(null)
+  // Guards against out-of-order responses and throttles the focus refetch.
+  const reqToken = useRef(0)
+  const lastLoad = useRef(0)
+
+  // Issues live only under a project on the backend — there is no workspace-wide
+  // "my issues" endpoint — so we fan out across every project and filter to the
+  // current user client-side. `mode` controls the loading UI: 'full' shows the
+  // skeleton, 'refresh' spins the button, 'silent' updates in the background.
+  const fetchAll = useCallback(
+    async (mode: 'full' | 'refresh' | 'silent' = 'full') => {
+      if (!slug) return
+      const token = ++reqToken.current
+      if (mode === 'full') setLoading(true)
+      if (mode === 'refresh') setRefreshing(true)
+      if (mode !== 'silent') setError(null)
       try {
         const projs = await getProjects(slug)
-        if (cancelled) return
         const results = await Promise.all(
           projs.map(async (p) => {
             const [st, page] = await Promise.all([
@@ -149,22 +161,51 @@ export function YourWorkPage() {
             return { project: p, states: st, issues: page.data }
           }),
         )
-        if (cancelled) return
+        if (token !== reqToken.current) return
         setProjects(projs)
         setStatesByProject(
           Object.fromEntries(results.map((r) => [r.project.id, r.states])),
         )
         setIssues(results.flatMap((r) => r.issues))
       } catch (err) {
-        if (!cancelled) setError(errMsg(err, 'Failed to load your work'))
+        if (token === reqToken.current && mode !== 'silent')
+          setError(errMsg(err, 'Failed to load your work'))
       } finally {
-        if (!cancelled) setLoading(false)
+        if (token === reqToken.current) {
+          if (mode === 'full') setLoading(false)
+          if (mode === 'refresh') setRefreshing(false)
+        }
+        lastLoad.current = Date.now()
       }
+    },
+    [slug],
+  )
+
+  useEffect(() => {
+    // Wrapped so the synchronous setLoading inside fetchAll isn't called
+    // directly in the effect body (react-hooks/set-state-in-effect).
+    void (async () => {
+      await fetchAll('full')
     })()
-    return () => {
-      cancelled = true
+  }, [fetchAll])
+
+  // Refetch quietly when the user comes back to the tab, so a work item they
+  // just completed on the board shows up here without a manual refresh.
+  useEffect(() => {
+    const onVisible = () => {
+      if (
+        document.visibilityState === 'visible' &&
+        Date.now() - lastLoad.current > 8000
+      )
+        fetchAll('silent')
     }
-  }, [slug, refreshKey])
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+    }
+  }, [fetchAll])
 
   const projectsById = useMemo(
     () => Object.fromEntries(projects.map((p) => [p.id, p])),
@@ -183,7 +224,15 @@ export function YourWorkPage() {
     const g = groupOf(i)
     return g !== 'completed' && g !== 'cancelled'
   }
+  const startOfToday = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }, [])
+  const isOverdue = (i: Issue) =>
+    !!i.due_date && new Date(i.due_date) < startOfToday && isOpenIssue(i)
 
+  // The two source sets, plus their union (deduped) for the overview charts.
   const assigned = useMemo(
     () =>
       userId
@@ -195,24 +244,22 @@ export function YourWorkPage() {
     () => (userId ? issues.filter((i) => i.created_by_id === userId) : []),
     [issues, userId],
   )
+  const mine = useMemo(() => {
+    const map = new Map<string, Issue>()
+    for (const i of assigned) map.set(i.id, i)
+    for (const i of created) map.set(i.id, i)
+    return [...map.values()]
+  }, [assigned, created])
 
-  // Overdue = has a past due date and isn't already done/cancelled.
-  const startOfToday = useMemo(() => {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
-  }, [])
-  const isOverdue = (i: Issue) =>
-    !!i.due_date && new Date(i.due_date) < startOfToday && isOpenIssue(i)
-
-  // Headline counts, all over the "assigned to me" set.
-  const stats = useMemo(() => {
-    const inProgress = assigned.filter((i) => groupOf(i) === 'started').length
-    const completed = assigned.filter((i) => groupOf(i) === 'completed').length
-    const overdue = assigned.filter(isOverdue).length
-    return { assigned: assigned.length, inProgress, completed, overdue }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assigned, statesById, startOfToday])
+  // Cheap enough to recompute each render — a few filters over small arrays.
+  const summarize = (list: Issue[]): Summary => ({
+    total: list.length,
+    inProgress: list.filter((i) => groupOf(i) === 'started').length,
+    completed: list.filter((i) => groupOf(i) === 'completed').length,
+    overdue: list.filter(isOverdue).length,
+  })
+  const assignedStats = summarize(assigned)
+  const createdStats = summarize(created)
 
   const byState: Segment[] = useMemo(
     () =>
@@ -220,10 +267,10 @@ export function YourWorkPage() {
         key: g,
         label: GROUP_META[g].label,
         color: GROUP_META[g].color,
-        count: assigned.filter((i) => groupOf(i) === g).length,
+        count: mine.filter((i) => groupOf(i) === g).length,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [assigned, statesById],
+    [mine, statesById],
   )
   const byPriority: Segment[] = useMemo(
     () =>
@@ -232,14 +279,15 @@ export function YourWorkPage() {
         label: PRIORITY_CONFIG[p].label,
         color: PRIORITY_BAR[p],
         icon: PRIORITY_CONFIG[p].icon,
-        count: assigned.filter((i) => i.priority === p).length,
+        count: mine.filter((i) => i.priority === p).length,
       })),
-    [assigned],
+    [mine],
   )
 
-  // Build the grouped list for the active tab + group-by choice.
+  // Grouped list for the active tab (Assigned / Created only).
   const groups: IssueGroup[] = useMemo(() => {
-    const list = tab === 'assigned' ? assigned : created
+    const list =
+      tab === 'assigned' ? assigned : tab === 'created' ? created : []
     if (groupBy === 'project') {
       return projects
         .map((p) => ({
@@ -274,16 +322,13 @@ export function YourWorkPage() {
 
   const selectedIssue = issues.find((i) => i.id === selectedId) ?? null
 
-  function refresh() {
-    setRefreshKey((k) => k + 1)
-    toast.message('Refreshing your work…')
-  }
-
-  const hour = new Date().getHours()
-  const greeting =
-    hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const firstName = user?.display_name?.split(' ')[0] ?? 'there'
   const initial = user?.display_name?.[0]?.toUpperCase() ?? 'U'
+  const tabs: { value: MainTab; label: string; count?: number }[] = [
+    { value: 'summary', label: 'Summary' },
+    { value: 'assigned', label: 'Assigned', count: assigned.length },
+    { value: 'created', label: 'Created', count: created.length },
+    { value: 'subscribed', label: 'Subscribed' },
+  ]
 
   return (
     <div className="flex h-full flex-col">
@@ -295,17 +340,20 @@ export function YourWorkPage() {
           variant="ghost"
           size="sm"
           className="ml-auto gap-1.5"
-          onClick={refresh}
-          disabled={loading}
+          onClick={() => fetchAll('refresh')}
+          disabled={loading || refreshing}
         >
-          <RotateCw size={14} className={cn(loading && 'animate-spin')} />
+          <RotateCw
+            size={14}
+            className={cn((loading || refreshing) && 'animate-spin')}
+          />
           <span className="hidden sm:inline">Refresh</span>
         </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl px-6 py-8">
-          {/* Greeting */}
+          {/* Header */}
           <div className="mb-6 flex items-center gap-3">
             <Avatar className="size-11">
               <AvatarFallback className="bg-purple-600 text-base font-semibold text-white">
@@ -314,13 +362,17 @@ export function YourWorkPage() {
             </Avatar>
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold">
-                {greeting}, {firstName}
+                {user?.display_name ?? 'Your Work'}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Everything assigned to you across your projects, in one place.
+                Work items assigned to you or created by you
+                {workspaceName ? ` in ${workspaceName}` : ''}.
               </p>
             </div>
           </div>
+
+          {/* Tabs */}
+          <TabBar tabs={tabs} value={tab} onChange={setTab} />
 
           {loading ? (
             <LoadingState />
@@ -329,7 +381,7 @@ export function YourWorkPage() {
               icon={AlertCircle}
               title="Couldn't load your work"
               description={error}
-              action={{ label: 'Try again', onClick: refresh }}
+              action={{ label: 'Try again', onClick: () => fetchAll('full') }}
             />
           ) : projects.length === 0 ? (
             <EmptyState
@@ -337,124 +389,82 @@ export function YourWorkPage() {
               title="No projects yet"
               description="Once you're part of a project and get assigned work items, they'll appear here."
             />
+          ) : tab === 'summary' ? (
+            <SummaryTab
+              assignedStats={assignedStats}
+              createdStats={createdStats}
+              byPriority={byPriority}
+              byState={byState}
+              total={mine.length}
+            />
+          ) : tab === 'subscribed' ? (
+            <div className="pt-6">
+              <EmptyState
+                icon={BellOff}
+                title="Subscriptions aren't available yet"
+                description="Following work items you're not assigned to isn't supported by the backend yet. For now, Assigned and Created cover your work."
+              />
+            </div>
           ) : (
-            <>
-              {/* Stat tiles */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatTile
-                  icon={CircleDot}
-                  tone="text-primary"
-                  label="Assigned to you"
-                  value={stats.assigned}
-                />
-                <StatTile
-                  icon={Timer}
-                  tone="text-amber-500"
-                  label="In progress"
-                  value={stats.inProgress}
-                />
-                <StatTile
-                  icon={CheckCircle2}
-                  tone="text-emerald-500"
-                  label="Completed"
-                  value={stats.completed}
-                />
-                <StatTile
-                  icon={CalendarClock}
-                  tone={
-                    stats.overdue > 0
-                      ? 'text-destructive'
-                      : 'text-muted-foreground'
-                  }
-                  label="Overdue"
-                  value={stats.overdue}
-                />
-              </div>
-
-              {/* Breakdowns */}
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Panel title="Assigned by state">
-                  <DistributionBar segments={byState} total={stats.assigned} />
-                </Panel>
-                <Panel title="Assigned by priority">
-                  <DistributionBar
-                    segments={byPriority}
-                    total={stats.assigned}
-                  />
-                </Panel>
-              </div>
-
-              {/* Tabs + group-by */}
-              <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <div className="pt-4">
+              {/* Group-by control */}
+              <div className="mb-3 flex items-center justify-end gap-2">
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  Group by
+                </span>
                 <Segmented
-                  value={tab}
-                  onChange={(v) => setTab(v as Tab)}
+                  value={groupBy}
+                  onChange={(v) => setGroupBy(v as GroupBy)}
                   options={[
-                    { value: 'assigned', label: `Assigned ${assigned.length}` },
-                    { value: 'created', label: `Created ${created.length}` },
+                    { value: 'state', label: 'State' },
+                    { value: 'project', label: 'Project' },
+                    { value: 'priority', label: 'Priority' },
                   ]}
                 />
-                <div className="flex items-center gap-2">
-                  <span className="hidden text-xs text-muted-foreground sm:inline">
-                    Group by
-                  </span>
-                  <Segmented
-                    value={groupBy}
-                    onChange={(v) => setGroupBy(v as GroupBy)}
-                    options={[
-                      { value: 'project', label: 'Project' },
-                      { value: 'state', label: 'State' },
-                      { value: 'priority', label: 'Priority' },
-                    ]}
-                  />
-                </div>
               </div>
 
-              {/* Grouped issue list */}
-              <div className="mt-4">
-                {groups.length === 0 ? (
-                  <EmptyState
-                    icon={Inbox}
-                    title={
-                      tab === 'assigned'
-                        ? 'Nothing assigned to you'
-                        : "You haven't created any work items"
-                    }
-                    description={
-                      tab === 'assigned'
-                        ? 'Work items assigned to you across all projects will show up here.'
-                        : 'Work items you create across all projects will show up here.'
-                    }
-                  />
-                ) : (
-                  groups.map((g) => (
-                    <section key={g.id} className="mb-5">
-                      <header className="mb-1.5 flex items-center gap-2 px-1">
-                        <GroupTile group={g} />
-                        <span className="text-sm font-medium text-foreground">
-                          {g.label}
-                        </span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                          {g.items.length}
-                        </span>
-                      </header>
-                      <div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-                        {g.items.map((issue) => (
-                          <IssueRow
-                            key={issue.id}
-                            issue={issue}
-                            project={projectsById[issue.project_id] ?? null}
-                            state={statesById[issue.state_id]}
-                            overdue={isOverdue(issue)}
-                            onOpen={() => setSelectedId(issue.id)}
-                          />
-                        ))}
-                      </div>
-                    </section>
-                  ))
-                )}
-              </div>
-            </>
+              {groups.length === 0 ? (
+                <EmptyState
+                  icon={Inbox}
+                  title={
+                    tab === 'assigned'
+                      ? 'Nothing assigned to you'
+                      : "You haven't created any work items"
+                  }
+                  description={
+                    tab === 'assigned'
+                      ? "Ask a teammate to assign you a work item, or open one and add yourself as an assignee — it'll show up here."
+                      : 'Work items you create across all projects will show up here, including the ones you complete.'
+                  }
+                />
+              ) : (
+                groups.map((g) => (
+                  <section key={g.id} className="mb-5">
+                    <header className="mb-1.5 flex items-center gap-2 px-1">
+                      <GroupTile group={g} />
+                      <span className="text-sm font-medium text-foreground">
+                        {g.label}
+                      </span>
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        {g.items.length}
+                      </span>
+                    </header>
+                    <div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
+                      {g.items.map((issue) => (
+                        <IssueRow
+                          key={issue.id}
+                          issue={issue}
+                          project={projectsById[issue.project_id] ?? null}
+                          state={statesById[issue.state_id]}
+                          overdue={isOverdue(issue)}
+                          onOpen={() => setSelectedId(issue.id)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -492,26 +502,118 @@ export function YourWorkPage() {
   )
 }
 
-function StatTile({
+function SummaryTab({
+  assignedStats,
+  createdStats,
+  byPriority,
+  byState,
+  total,
+}: {
+  assignedStats: Summary
+  createdStats: Summary
+  byPriority: Segment[]
+  byState: Segment[]
+  total: number
+}) {
+  return (
+    <div className="space-y-4 pt-6">
+      {/* How this page works */}
+      <div className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <Info size={16} className="mt-0.5 shrink-0 text-primary" />
+        <p>
+          A work item appears here when it&apos;s{' '}
+          <span className="font-medium text-foreground">assigned to you</span>{' '}
+          or <span className="font-medium text-foreground">created by you</span>
+          . <span className="font-medium text-foreground">Completed</span> means
+          it sits in a Done state. Creating a work item does not assign it to
+          you automatically — add yourself as an assignee if you want it counted
+          under Assigned.
+        </p>
+      </div>
+
+      {/* Overview */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <OverviewPanel
+          icon={CircleDot}
+          tone="text-primary"
+          title="Assigned to you"
+          stats={assignedStats}
+          showOverdue
+        />
+        <OverviewPanel
+          icon={Briefcase}
+          tone="text-violet-500"
+          title="Created by you"
+          stats={createdStats}
+        />
+      </div>
+
+      {total === 0 ? (
+        <EmptyState
+          icon={Inbox}
+          title="No work yet"
+          description="When you're assigned a work item or create one, its breakdown by priority and state will show up here."
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Panel title="Workload by priority">
+            <PriorityWorkload segments={byPriority} />
+          </Panel>
+          <Panel title="Issues by state">
+            <DistributionBar segments={byState} total={total} />
+          </Panel>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OverviewPanel({
   icon: Icon,
   tone,
-  label,
-  value,
+  title,
+  stats,
+  showOverdue = false,
 }: {
   icon: LucideIcon
   tone: string
-  label: string
-  value: number
+  title: string
+  stats: Summary
+  showOverdue?: boolean
 }) {
+  const sub = [
+    { label: 'In progress', value: stats.inProgress, color: '#f59e0b' },
+    { label: 'Completed', value: stats.completed, color: '#10b981' },
+    ...(showOverdue
+      ? [{ label: 'Overdue', value: stats.overdue, color: '#e5484d' }]
+      : []),
+  ]
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon size={15} className={tone} />
-        <span className="truncate text-xs font-medium">{label}</span>
+        <span className="text-xs font-medium">{title}</span>
       </div>
-      <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">
-        {value}
+      <p className="mt-1 text-3xl font-semibold tabular-nums text-foreground">
+        {stats.total}
       </p>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+        {sub.map((s) => (
+          <span
+            key={s.label}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <span
+              className="size-2 rounded-full"
+              style={{ background: s.color }}
+            />
+            {s.label}
+            <span className="font-semibold tabular-nums text-foreground">
+              {s.value}
+            </span>
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
@@ -529,6 +631,45 @@ function Panel({
         {title}
       </h3>
       {children}
+    </div>
+  )
+}
+
+// Plane-style "Workload": one row per priority with a bar scaled to the busiest
+// priority, so the relative spread of your work is legible at a glance.
+function PriorityWorkload({ segments }: { segments: Segment[] }) {
+  const max = Math.max(1, ...segments.map((s) => s.count))
+  return (
+    <div className="space-y-2.5">
+      {segments.map((s) => {
+        const Icon = s.icon
+        return (
+          <div key={s.key} className="flex items-center gap-3">
+            <div className="flex w-24 shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+              {Icon && (
+                <Icon
+                  size={13}
+                  style={{ color: s.color }}
+                  className="shrink-0"
+                />
+              )}
+              {s.label}
+            </div>
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${(s.count / max) * 100}%`,
+                  background: s.color,
+                }}
+              />
+            </div>
+            <span className="w-6 shrink-0 text-right text-xs font-medium tabular-nums text-foreground">
+              {s.count}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -557,29 +698,18 @@ function DistributionBar({
           ))}
       </div>
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
-        {segments.map((s) => {
-          const Icon = s.icon
-          return (
-            <div key={s.key} className="flex items-center gap-2 text-xs">
-              {Icon ? (
-                <Icon
-                  size={13}
-                  style={{ color: s.color }}
-                  className="shrink-0"
-                />
-              ) : (
-                <span
-                  className="size-2 shrink-0 rounded-full"
-                  style={{ background: s.color }}
-                />
-              )}
-              <span className="truncate text-muted-foreground">{s.label}</span>
-              <span className="ml-auto font-medium tabular-nums text-foreground">
-                {s.count}
-              </span>
-            </div>
-          )
-        })}
+        {segments.map((s) => (
+          <div key={s.key} className="flex items-center gap-2 text-xs">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ background: s.color }}
+            />
+            <span className="truncate text-muted-foreground">{s.label}</span>
+            <span className="ml-auto font-medium tabular-nums text-foreground">
+              {s.count}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -678,6 +808,48 @@ function IssueRow({
   )
 }
 
+function TabBar({
+  tabs,
+  value,
+  onChange,
+}: {
+  tabs: { value: MainTab; label: string; count?: number }[]
+  value: MainTab
+  onChange: (value: MainTab) => void
+}) {
+  return (
+    <div className="flex gap-1 overflow-x-auto border-b border-border">
+      {tabs.map((t) => (
+        <button
+          key={t.value}
+          type="button"
+          onClick={() => onChange(t.value)}
+          className={cn(
+            '-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+            value === t.value
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground',
+          )}
+        >
+          {t.label}
+          {typeof t.count === 'number' && (
+            <span
+              className={cn(
+                'rounded px-1.5 py-0.5 text-[11px] tabular-nums',
+                value === t.value
+                  ? 'bg-nav-active-bg text-primary'
+                  : 'bg-muted text-muted-foreground',
+              )}
+            >
+              {t.count}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function Segmented({
   value,
   onChange,
@@ -710,21 +882,14 @@ function Segmented({
 
 function LoadingState() {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-xl" />
-        ))}
+    <div className="space-y-4 pt-6">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <Skeleton className="h-28 w-full rounded-xl" />
-        <Skeleton className="h-28 w-full rounded-xl" />
-      </div>
-      <Skeleton className="h-9 w-64 rounded-md" />
-      <div className="space-y-2">
-        {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-11 w-full rounded-lg" />
-        ))}
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
       </div>
     </div>
   )
