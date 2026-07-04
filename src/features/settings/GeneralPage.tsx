@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Building2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
@@ -17,17 +18,26 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { updateWorkspace } from '@/api/workspace'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import {
+  updateWorkspace,
+  deleteWorkspace,
+  getWorkspaceMembers,
+} from '@/api/workspace'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
+import { useAuthStore } from '@/stores/authStore'
 
 // Native timezone list — no lib needed.
 const TIMEZONES = Intl.supportedValuesOf('timeZone')
 
 export function GeneralPage() {
+  const navigate = useNavigate()
   const workspace = useWorkspaceStore((s) => s.workspace)
   const workspaces = useWorkspaceStore((s) => s.workspaces)
   const setWorkspace = useWorkspaceStore((s) => s.setWorkspace)
   const setWorkspaces = useWorkspaceStore((s) => s.setWorkspaces)
+  const reset = useWorkspaceStore((s) => s.reset)
+  const userId = useAuthStore((s) => s.user?.id)
 
   const [name, setName] = useState(workspace?.name ?? '')
   // ponytail: backend has no timezone field — display-only. Default to the
@@ -35,8 +45,43 @@ export function GeneralPage() {
   const [tz, setTz] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [busy, setBusy] = useState(false)
   const [logoOpen, setLogoOpen] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const wsInitial = workspace?.name?.[0]?.toUpperCase() ?? 'W'
+
+  // Only the workspace owner may delete it — hide the button for everyone else.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      if (!workspace || !userId) return
+      const members = await getWorkspaceMembers(workspace.slug).catch(() => [])
+      const me = members.find((m) => m.user_id === userId)
+      if (!cancelled) setIsOwner(me?.role === 'owner')
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [workspace?.slug, userId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function remove() {
+    if (!workspace) return
+    try {
+      await deleteWorkspace(workspace.slug)
+      toast.success('Workspace deleted')
+      const remaining = workspaces.filter((w) => w.id !== workspace.id)
+      if (remaining.length > 0) {
+        setWorkspaces(remaining)
+        setWorkspace(remaining[0])
+        navigate('/')
+      } else {
+        reset()
+        navigate('/onboarding/workspace')
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete')
+    }
+  }
 
   async function save() {
     if (!workspace || !name.trim()) return
@@ -120,12 +165,42 @@ export function GeneralPage() {
         <Button className="mt-6" onClick={save} disabled={busy || !name.trim()}>
           {busy ? 'Updating…' : 'Update workspace'}
         </Button>
+
+        {/* Delete — owner only */}
+        {isOwner && (
+          <div className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+            <div>
+              <p className="text-sm font-semibold">Delete workspace</p>
+              <p className="text-xs text-muted-foreground">
+                When deleting a workspace, all of the data and resources within
+                that workspace will be permanently removed and cannot be
+                recovered.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="shrink-0 border-destructive text-destructive hover:bg-destructive/10"
+              onClick={() => setConfirmOpen(true)}
+            >
+              Delete workspace
+            </Button>
+          </div>
+        )}
       </div>
 
       <LogoDialog
         open={logoOpen}
         onOpenChange={setLogoOpen}
         initial={wsInitial}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete workspace?"
+        description={`This permanently deletes “${workspace?.name}” and all its projects and work items. This cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={remove}
       />
     </div>
   )
