@@ -51,12 +51,30 @@ interface PagedIssues {
   next_cursor: string | null
 }
 
-interface ListParams {
+// The full set of query filters the backend's issue-list endpoint accepts. All
+// are optional; the board only wires up a few, but the "Your Work" page and any
+// future saved views can lean on the rest (assignee / created_by / date ranges…).
+export interface ListParams {
   search?: string
   sort_by?: 'created_at' | 'updated_at' | 'priority' | 'due_date' | 'sort_order'
   order?: 'asc' | 'desc'
   limit?: number
   cursor?: string
+  // Filters — each maps 1:1 to a backend query param.
+  assignee?: string // user id of an assignee
+  created_by?: string // user id of the creator
+  state?: string // state id
+  priority?: IssuePriorityValue
+  label?: string // label id
+  cycle?: string
+  module?: string
+  parent_id?: string
+  due_before?: string // ISO date/datetime
+  due_after?: string
+  created_before?: string
+  created_after?: string
+  // Ask the backend to bucket the results server-side instead of returning a flat page.
+  group_by?: 'state' | 'priority' | 'assignee'
 }
 
 // Fetch a flat page of a project's issues. The board buckets them into columns

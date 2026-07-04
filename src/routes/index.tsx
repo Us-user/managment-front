@@ -17,6 +17,7 @@ import { ProjectLabelsPage } from '@/features/projects/ProjectLabelsPage'
 import { WorkItemsPage } from '@/features/work-items/WorkItemsPage'
 import { WorkspaceInvitesPage } from '@/features/invitations/WorkspaceInvitesPage'
 import { NotificationsPage } from '@/features/notifications/NotificationsPage'
+import { YourWorkPage } from '@/features/your-work/YourWorkPage'
 import {
   Home,
   PencilLine,
@@ -139,16 +140,7 @@ export const router = createBrowserRouter([
               />
             ),
           },
-          {
-            path: 'your-work',
-            element: (
-              <ComingSoon
-                icon={User}
-                title="Your Work"
-                subtitle="Everything assigned to you, in one place."
-              />
-            ),
-          },
+          { path: 'your-work', element: <YourWorkPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           {
             path: 'ai',
