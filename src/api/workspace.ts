@@ -4,6 +4,7 @@ export interface WorkspaceData {
   id: string
   name: string
   slug: string
+  owner_id?: string
 }
 
 // Token is attached by the axios request interceptor — callers don't pass it.
@@ -18,6 +19,10 @@ export const updateWorkspace = (
   slug: string,
   data: { name?: string; slug?: string },
 ) => client.patch<unknown, WorkspaceData>(`/workspaces/${slug}`, data)
+
+// Owner-only on the backend (403 otherwise); returns 204.
+export const deleteWorkspace = (slug: string) =>
+  client.delete<unknown, void>(`/workspaces/${slug}`)
 
 // Roles an admin can assign — the workspace owner role is not assignable.
 export type AssignableRole = 'admin' | 'member' | 'guest'

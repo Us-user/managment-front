@@ -13,6 +13,7 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   getProject,
   updateProject,
@@ -35,18 +36,22 @@ export function ProjectGeneralPage() {
   const [network, setNetwork] = useState('public') // ponytail: mock, not in API
   const [tz, setTz] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     ;(async () => {
+      setLoading(true)
       if (!workspace || !projectId) return
       const p = await getProject(workspace.slug, projectId).catch(() => null)
       if (cancelled || !p) return
       setProject(p)
       setName(p.name)
       setDescription(p.description ?? '')
-    })()
+    })().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
     return () => {
       cancelled = true
     }
@@ -87,6 +92,35 @@ export function ProjectGeneralPage() {
         General
       </div>
 
+      {loading ? (
+        <div className="max-w-3xl px-8 py-6">
+          <Skeleton className="mb-6 h-40 rounded-lg" />
+          <div className="mb-6 space-y-2 pl-1">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+          <div className="mb-4 space-y-1.5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+          <div className="mb-4 space-y-1.5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+          <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="space-y-1.5">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-9 w-32" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </div>
+      ) : (
       <div className="max-w-3xl px-8 py-6">
         {/* Cover + identity */}
         <div className="relative mb-6 h-40 rounded-lg bg-gradient-to-r from-slate-700 via-rose-600 to-sky-700">
@@ -140,14 +174,21 @@ export function ProjectGeneralPage() {
             {/* ponytail: mock — network not in project API */}
             <Select value={network} onValueChange={setNetwork}>
               <SelectTrigger>
-                <span className="flex items-center gap-2">
-                  <Globe size={14} />
-                  <SelectValue />
-                </span>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="private">Private</SelectItem>
+                <SelectItem value="public">
+                  <span className="flex items-center gap-2">
+                    <Globe size={14} />
+                    Public
+                  </span>
+                </SelectItem>
+                <SelectItem value="private">
+                  <span className="flex items-center gap-2">
+                    <Globe size={14} />
+                    Private
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -179,6 +220,7 @@ export function ProjectGeneralPage() {
           </Button>
         </div>
       </div>
+      )}
 
       <ConfirmDialog
         open={confirmOpen}

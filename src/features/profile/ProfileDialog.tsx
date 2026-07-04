@@ -59,7 +59,15 @@ export function ProfileDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl gap-0 overflow-hidden p-0">
+        <DialogContent
+          className="max-w-3xl gap-0 overflow-hidden p-0"
+          // Close only via the X. A sub-dialog (deactivate/image) portals as a
+          // sibling, so closing it emits a focus/pointer-outside event here —
+          // and it fires *after* our open flags reset, so a conditional guard
+          // loses the race. Ignoring outside interaction unconditionally is the
+          // only race-free fix, and it also stops mis-clicks losing edits.
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           {/* Cover */}
           <div className="relative h-32 bg-muted">
             <span className="absolute right-3 bottom-3 rounded border border-border bg-background/80 px-2 py-1 text-xs">
