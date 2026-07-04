@@ -127,7 +127,14 @@ export function ProjectsPage() {
                         <MoreHorizontal size={15} />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    {/* Menu is portaled, but React events still bubble up the
+                        React tree to the card's onClick — stop them so item
+                        navigation (e.g. Settings) isn't overridden by the
+                        card's work-items navigation. */}
+                    <DropdownMenuContent
+                      align="end"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <DropdownMenuItem
                         onClick={() => navigate(`/projects/${p.id}/work-items`)}
                       >
