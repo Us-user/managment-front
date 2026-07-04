@@ -16,10 +16,12 @@ export function NotFoundPage() {
 
       {/* Text */}
       <div className="mx-auto w-full max-w-md space-y-2 text-center">
-        <p className="text-base font-bold text-foreground">Oops! Something went wrong.</p>
+        <p className="text-base font-bold text-foreground">
+          Oops! Something went wrong.
+        </p>
         <p className="text-sm text-muted-foreground">
-          Sorry, the page you are looking for cannot be found. It may have been removed, had its
-          name changed, or is temporarily unavailable.
+          Sorry, the page you are looking for cannot be found. It may have been
+          removed, had its name changed, or is temporarily unavailable.
         </p>
       </div>
 

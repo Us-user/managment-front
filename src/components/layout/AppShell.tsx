@@ -8,7 +8,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 function ActivePanel({ className }: { className?: string }) {
   const { pathname } = useLocation()
-  if (pathname.startsWith('/ai')) return <AISidebarPanel className={className} />
+  if (pathname.startsWith('/ai'))
+    return <AISidebarPanel className={className} />
   return <SidebarPanel className={className} />
 }
 

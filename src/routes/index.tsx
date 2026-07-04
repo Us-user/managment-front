@@ -13,6 +13,8 @@ import { GeneralPage } from '@/features/settings/GeneralPage'
 import { ProjectsPage } from '@/features/projects/ProjectsPage'
 import { ProjectSettingsLayout } from '@/features/projects/ProjectSettingsLayout'
 import { ProjectGeneralPage } from '@/features/projects/ProjectGeneralPage'
+import { ProjectLabelsPage } from '@/features/projects/ProjectLabelsPage'
+import { WorkItemsPage } from '@/features/work-items/WorkItemsPage'
 import { WorkspaceInvitesPage } from '@/features/invitations/WorkspaceInvitesPage'
 import {
   Home,
@@ -23,7 +25,6 @@ import {
   BarChart3,
   Trash2,
   Settings,
-  CircleDot,
   RefreshCw,
   Layers,
   PanelsTopLeft,
@@ -67,7 +68,6 @@ const PROJECT_SETTINGS_SOON = [
   'milestones',
   'updates',
   'states',
-  'labels',
   'estimates',
 ].map((path) => ({
   path,
@@ -110,6 +110,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="general" replace /> },
           { path: 'general', element: <ProjectGeneralPage /> },
+          { path: 'labels', element: <ProjectLabelsPage /> },
           ...PROJECT_SETTINGS_SOON,
         ],
       },
@@ -205,16 +206,7 @@ export const router = createBrowserRouter([
               />
             ),
           },
-          {
-            path: 'projects/:id/work-items',
-            element: (
-              <ComingSoon
-                icon={CircleDot}
-                title="Work Items"
-                subtitle="Tasks, board and list views for this project."
-              />
-            ),
-          },
+          { path: 'projects/:id/work-items', element: <WorkItemsPage /> },
           {
             path: 'projects/:id/cycles',
             element: (

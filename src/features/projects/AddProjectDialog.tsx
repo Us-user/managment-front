@@ -147,7 +147,12 @@ function StateChip({
 
 // --- Visibility (local) ----------------------------------------------------
 const VISIBILITY = [
-  { value: 'private', label: 'Private', desc: 'Accessible only by invite', icon: Lock },
+  {
+    value: 'private',
+    label: 'Private',
+    desc: 'Accessible only by invite',
+    icon: Lock,
+  },
   {
     value: 'public',
     label: 'Public',
@@ -211,7 +216,10 @@ function DateChip({
   return (
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger asChild>
-        <button type="button" className={cn(chipCls, active && 'text-foreground')}>
+        <button
+          type="button"
+          className={cn(chipCls, active && 'text-foreground')}
+        >
           <CalendarRange size={13} />
           {active ? `${start || '…'} → ${end || '…'}` : 'Start date → End date'}
         </button>
@@ -320,7 +328,10 @@ function LeadChip({
   return (
     <PopoverPrimitive.Root onOpenChange={() => setQ('')}>
       <PopoverPrimitive.Trigger asChild>
-        <button type="button" className={cn(chipCls, value && 'text-foreground')}>
+        <button
+          type="button"
+          className={cn(chipCls, value && 'text-foreground')}
+        >
           {value ? <MemberAvatar m={value} /> : <User size={13} />}
           {value ? value.user.display_name : 'Lead'}
         </button>
@@ -334,9 +345,7 @@ function LeadChip({
           <PopoverPrimitive.Close asChild key={m.user_id}>
             <button
               type="button"
-              onClick={() =>
-                onChange(value?.user_id === m.user_id ? null : m)
-              }
+              onClick={() => onChange(value?.user_id === m.user_id ? null : m)}
               className={optionCls}
             >
               <MemberAvatar m={m} />
@@ -365,7 +374,9 @@ function MembersChip({
     m.user.display_name.toLowerCase().includes(q.toLowerCase()),
   )
   function toggle(id: string) {
-    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
+    onChange(
+      value.includes(id) ? value.filter((v) => v !== id) : [...value, id],
+    )
   }
   return (
     <PopoverPrimitive.Root onOpenChange={() => setQ('')}>

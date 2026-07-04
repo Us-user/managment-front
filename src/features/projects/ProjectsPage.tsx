@@ -7,6 +7,7 @@ import {
   Star,
   MoreHorizontal,
   Settings,
+  LayoutGrid,
   Globe,
   Users,
   Tag,
@@ -95,23 +96,44 @@ export function ProjectsPage() {
           {rows.map((p) => (
             <div
               key={p.id}
-              className="overflow-hidden rounded-lg border border-border bg-card"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(`/projects/${p.id}/work-items`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  navigate(`/projects/${p.id}/work-items`)
+                }
+              }}
+              className="cursor-pointer overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="relative h-28 bg-gradient-to-r from-slate-700 via-rose-600 to-sky-700">
                 <div className="absolute -bottom-4 left-4 flex h-9 w-9 items-center justify-center rounded-md bg-amber-400 text-lg">
                   📊
                 </div>
                 <div className="absolute right-2 top-2 flex items-center gap-1">
-                  <button className="rounded p-1 text-white/80 hover:bg-black/30">
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded p-1 text-white/80 hover:bg-black/30"
+                  >
                     <Star size={15} />
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="rounded p-1 text-white/80 hover:bg-black/30">
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded p-1 text-white/80 hover:bg-black/30"
+                      >
                         <MoreHorizontal size={15} />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => navigate(`/projects/${p.id}/work-items`)}
+                      >
+                        <LayoutGrid size={14} className="mr-2" />
+                        Open board
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
                           navigate(`/projects/${p.id}/settings/general`)

@@ -1,4 +1,13 @@
-import { Home, Maximize2, Plus, Mic, ArrowUp, PencilLine, Settings2, CircleDot } from 'lucide-react'
+import {
+  Home,
+  Maximize2,
+  Plus,
+  Mic,
+  ArrowUp,
+  PencilLine,
+  Settings2,
+  CircleDot,
+} from 'lucide-react'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -76,7 +85,9 @@ export function HomePage() {
           {/* Ask Plane AI */}
           <section className="mb-6">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Ask Plane AI</h2>
+              <h2 className="text-sm font-semibold text-foreground">
+                Ask Plane AI
+              </h2>
               <button className="text-muted-foreground hover:text-foreground transition-colors">
                 <Maximize2 size={14} />
               </button>
@@ -86,9 +97,13 @@ export function HomePage() {
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground">
                   A
                 </div>
-                <span className="text-sm font-medium text-foreground">Alfa-Bots</span>
+                <span className="text-sm font-medium text-foreground">
+                  Alfa-Bots
+                </span>
               </div>
-              <p className="mb-4 text-sm text-muted-foreground">How can I help you today?</p>
+              <p className="mb-4 text-sm text-muted-foreground">
+                How can I help you today?
+              </p>
               <div className="flex items-center justify-between border-t border-border pt-3">
                 <div className="flex items-center gap-3">
                   <button className="text-muted-foreground hover:text-foreground transition-colors">
@@ -118,7 +133,9 @@ export function HomePage() {
           {/* Quicklinks */}
           <section className="mb-6">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Quicklinks</h2>
+              <h2 className="text-sm font-semibold text-foreground">
+                Quicklinks
+              </h2>
               <button className="flex items-center gap-1 text-xs text-primary hover:underline transition-colors">
                 <Plus size={13} />
                 Add quick Link
@@ -132,7 +149,9 @@ export function HomePage() {
                 >
                   <span className="text-base">{link.emoji}</span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{link.title}</p>
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {link.title}
+                    </p>
                     <p className="text-xs text-muted-foreground">{link.ago}</p>
                   </div>
                 </div>
@@ -149,7 +168,7 @@ export function HomePage() {
               </button>
             </div>
             <div className="space-y-2">
-              {RECENTS.map(item => (
+              {RECENTS.map((item) => (
                 <div
                   key={item.id}
                   className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted transition-colors"
@@ -164,8 +183,12 @@ export function HomePage() {
                     <span className="shrink-0 text-xs font-medium text-muted-foreground">
                       {item.id}
                     </span>
-                    <span className="truncate text-sm text-foreground">{item.title}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{item.ago}</span>
+                    <span className="truncate text-sm text-foreground">
+                      {item.title}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {item.ago}
+                    </span>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <button className="text-muted-foreground hover:text-foreground transition-colors">

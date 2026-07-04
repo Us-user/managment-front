@@ -16,13 +16,18 @@ interface AvatarGroupProps {
 function getInitials(name: string) {
   return name
     .split(' ')
-    .map(n => n[0])
+    .map((n) => n[0])
     .slice(0, 2)
     .join('')
     .toUpperCase()
 }
 
-export function AvatarGroup({ avatars, max = 4, size = 'sm', className }: AvatarGroupProps) {
+export function AvatarGroup({
+  avatars,
+  max = 4,
+  size = 'sm',
+  className,
+}: AvatarGroupProps) {
   const visible = avatars.slice(0, max)
   const overflow = avatars.length - max
 

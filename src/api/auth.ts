@@ -62,9 +62,10 @@ export const confirmAccountDeletion = (code: string) =>
 
 // Telegram login: /init returns a deep-link to open + a token to poll.
 export const telegramInit = () =>
-  client.post<unknown, { deep_link: string; token: string; expires_at: string }>(
-    '/auth/telegram/init',
-  )
+  client.post<
+    unknown,
+    { deep_link: string; token: string; expires_at: string }
+  >('/auth/telegram/init')
 
 // Poll after the user opens the deep-link; tokens arrive once authenticated.
 export const telegramStatus = (token: string) =>

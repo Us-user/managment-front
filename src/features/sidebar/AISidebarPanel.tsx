@@ -8,7 +8,12 @@ const RECENT_CHATS = [
 
 export function AISidebarPanel({ className }: { className?: string }) {
   return (
-    <div className={cn('flex w-[240px] shrink-0 flex-col border-r border-border bg-card', className)}>
+    <div
+      className={cn(
+        'flex w-[240px] shrink-0 flex-col border-r border-border bg-card',
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex h-10 items-center justify-between border-b border-border px-3">
         <span className="text-sm font-semibold">Plane AI</span>
@@ -30,9 +35,11 @@ export function AISidebarPanel({ className }: { className?: string }) {
 
       {/* Recents */}
       <div className="flex-1 overflow-y-auto px-3 pb-2">
-        <p className="py-1 text-xs font-medium text-muted-foreground">Recents</p>
+        <p className="py-1 text-xs font-medium text-muted-foreground">
+          Recents
+        </p>
         <div className="mt-0.5 space-y-0.5">
-          {RECENT_CHATS.map(chat => (
+          {RECENT_CHATS.map((chat) => (
             <button
               key={chat}
               className="w-full truncate rounded-md px-2 py-1.5 text-left text-sm text-foreground hover:bg-muted transition-colors"

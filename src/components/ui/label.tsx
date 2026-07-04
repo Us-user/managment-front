@@ -4,7 +4,9 @@ import { cn } from '@/lib/utils'
 
 const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & { error?: boolean }
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    error?: boolean
+  }
 >(({ className, error, ...props }, ref) => (
   <LabelPrimitive.Root
     ref={ref}

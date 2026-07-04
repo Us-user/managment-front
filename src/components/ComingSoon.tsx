@@ -17,7 +17,9 @@ export function ComingSoon({ icon: Icon, title, subtitle }: ComingSoonProps) {
       <div className="flex justify-center">
         <Badge variant="secondary">Coming soon</Badge>
       </div>
-      <p className="mx-auto w-full max-w-xs text-sm text-muted-foreground">{subtitle}</p>
+      <p className="mx-auto w-full max-w-xs text-sm text-muted-foreground">
+        {subtitle}
+      </p>
       <p className="mx-auto w-full max-w-xs text-xs text-muted-foreground opacity-60">
         This feature is currently in development.
       </p>

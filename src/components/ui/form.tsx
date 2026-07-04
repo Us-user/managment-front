@@ -17,7 +17,9 @@ type FormFieldContextValue<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = { name: TName }
 
-const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue)
+const FormFieldContext = React.createContext<FormFieldContextValue>(
+  {} as FormFieldContextValue,
+)
 
 function FormField<
   TFieldValues extends FieldValues = FieldValues,
@@ -39,7 +41,10 @@ function useFormField() {
 
 const FormItemContext = React.createContext<{ id: string }>({ id: '' })
 
-function FormItem({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function FormItem({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   const id = React.useId()
   return (
     <FormItemContext.Provider value={{ id }}>
@@ -48,7 +53,10 @@ function FormItem({ className, ...props }: React.HTMLAttributes<HTMLDivElement>)
   )
 }
 
-function FormLabel({ className, ...props }: React.ComponentPropsWithoutRef<typeof Label>) {
+function FormLabel({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Label>) {
   const { error } = useFormField()
   const { id } = React.useContext(FormItemContext)
   return <Label htmlFor={id} error={!!error} className={className} {...props} />
@@ -67,7 +75,11 @@ function FormControl({ ...props }: React.HTMLAttributes<HTMLDivElement>) {
   )
 }
 
-function FormMessage({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+function FormMessage({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLParagraphElement>) {
   const { error } = useFormField()
   const { id } = React.useContext(FormItemContext)
   const body = error ? String(error.message) : children
@@ -83,4 +95,12 @@ function FormMessage({ className, children, ...props }: React.HTMLAttributes<HTM
   )
 }
 
-export { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, useFormField }
+export {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  useFormField,
+}

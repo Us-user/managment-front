@@ -95,7 +95,7 @@ export function PrioritySelect({
 
   const selected = value as IssuePriority | ''
 
-  const filtered = PRIORITIES.filter(p =>
+  const filtered = PRIORITIES.filter((p) =>
     CONFIG[p].label.toLowerCase().includes(search.toLowerCase()),
   )
 
@@ -128,7 +128,9 @@ export function PrioritySelect({
               <span className="flex-1 text-left">{CONFIG[selected].label}</span>
             </>
           ) : (
-            <span className="flex-1 text-left text-muted-foreground">{placeholder}</span>
+            <span className="flex-1 text-left text-muted-foreground">
+              {placeholder}
+            </span>
           )}
           <ChevronDown className="size-4 shrink-0 opacity-50" />
         </button>
@@ -151,7 +153,7 @@ export function PrioritySelect({
             <input
               autoFocus
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search"
               className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
             />
@@ -159,9 +161,11 @@ export function PrioritySelect({
 
           {/* Options */}
           {filtered.length === 0 ? (
-            <p className="px-2 py-2 text-sm text-muted-foreground">No results.</p>
+            <p className="px-2 py-2 text-sm text-muted-foreground">
+              No results.
+            </p>
           ) : (
-            filtered.map(p => (
+            filtered.map((p) => (
               <button
                 key={p}
                 type="button"
@@ -173,7 +177,9 @@ export function PrioritySelect({
               >
                 <IconBox priority={p} />
                 <span className="flex-1 text-left">{CONFIG[p].label}</span>
-                {value === p && <Check className="size-3.5 shrink-0 text-foreground" />}
+                {value === p && (
+                  <Check className="size-3.5 shrink-0 text-foreground" />
+                )}
               </button>
             ))
           )}
