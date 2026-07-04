@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -19,11 +19,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import {
-  updateWorkspace,
-  deleteWorkspace,
-  getWorkspaceMembers,
-} from '@/api/workspace'
+import { updateWorkspace, deleteWorkspace } from '@/api/workspace'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -45,24 +41,13 @@ export function GeneralPage() {
   const [tz, setTz] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [busy, setBusy] = useState(false)
   const [logoOpen, setLogoOpen] = useState(false)
-  const [isOwner, setIsOwner] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const wsInitial = workspace?.name?.[0]?.toUpperCase() ?? 'W'
 
-  // Only the workspace owner may delete it — hide the button for everyone else.
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      if (!workspace || !userId) return
-      const members = await getWorkspaceMembers(workspace.slug).catch(() => [])
-      const me = members.find((m) => m.user_id === userId)
-      if (!cancelled) setIsOwner(me?.role === 'owner')
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [workspace?.slug, userId]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Only the owner may delete it. owner_id ships with the workspace, so this is
+  // known immediately — no members fetch, button shows on first render.
+  const isOwner = !!userId && workspace?.owner_id === userId
 
   async function remove() {
     if (!workspace) return

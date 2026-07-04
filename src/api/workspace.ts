@@ -4,6 +4,7 @@ export interface WorkspaceData {
   id: string
   name: string
   slug: string
+  owner_id?: string
 }
 
 // Token is attached by the axios request interceptor — callers don't pass it.
