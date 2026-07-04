@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ export function ProjectsPage() {
   const navigate = useNavigate()
   const workspace = useWorkspaceStore((s) => s.workspace)
   const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [addOpen, setAddOpen] = useState(false)
 
@@ -40,10 +42,13 @@ export function ProjectsPage() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
+      setLoading(true)
       if (!workspace) return
       const list = await getProjects(workspace.slug).catch(() => [])
       if (!cancelled) setProjects(list)
-    })()
+    })().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
     return () => {
       cancelled = true
     }
@@ -93,7 +98,27 @@ export function ProjectsPage() {
       {/* Grid */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {rows.map((p) => (
+          {loading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="overflow-hidden rounded-lg border border-border bg-card"
+              >
+                <Skeleton className="h-28 rounded-none" />
+                <div className="space-y-2 px-4 pb-4 pt-6">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/4" />
+                  <div className="mt-3 flex items-center gap-2">
+                    <Skeleton className="h-5 w-14" />
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          {!loading &&
+            rows.map((p) => (
             <div
               key={p.id}
               role="button"
@@ -175,7 +200,7 @@ export function ProjectsPage() {
           ))}
         </div>
 
-        {rows.length === 0 && (
+        {!loading && rows.length === 0 && (
           <p className="mt-16 text-center text-sm text-muted-foreground">
             {projects.length === 0
               ? 'No projects yet. Create your first one.'
